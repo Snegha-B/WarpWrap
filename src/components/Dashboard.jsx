@@ -11,10 +11,14 @@ import {
   Activity, 
   Users, 
   ArrowRight,
-  Calendar
+  Calendar,
+  FileText,
+  Receipt,
+  IndianRupee,
+  Clock3
 } from 'lucide-react';
 
-function Dashboard({ orders, customers, setActiveTab }) {
+function Dashboard({ orders, customers, setActiveTab, invoices = [] }) {
   const TODAY_STR = "2026-06-18";
   const today = new Date(TODAY_STR);
 
@@ -84,6 +88,13 @@ function Dashboard({ orders, customers, setActiveTab }) {
   const recentOrders = [...orders]
     .sort((a, b) => b.id.localeCompare(a.id))
     .slice(0, 4);
+
+  // Invoice KPIs
+  const approvedInvoices = invoices.filter(i => i.status === 'Approved');
+  const pendingInvoices = invoices.filter(i => i.status === 'Draft');
+  const totalApprovedRevenue = approvedInvoices.reduce((sum, i) => sum + Number(i.totalAmount), 0);
+  const ordersWithInvoice = new Set(invoices.map(i => i.orderId));
+  const ordersAwaitingBilling = orders.filter(o => !ordersWithInvoice.has(o.id)).length;
 
   return (
     <div>
@@ -356,6 +367,22 @@ function Dashboard({ orders, customers, setActiveTab }) {
               >
                 <TrendingUp size={20} style={{ color: 'var(--primary)' }} />
                 <span style={{ fontSize: '0.8rem', fontWeight: '600' }}>Review Analytics</span>
+              </button>
+
+              <button 
+                className="btn btn-secondary"
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  padding: '18px',
+                  borderRadius: 'var(--radius-lg)' 
+                }}
+                onClick={() => setActiveTab('invoices')}
+              >
+                <Receipt size={20} style={{ color: '#f59e0b' }} />
+                <span style={{ fontSize: '0.8rem', fontWeight: '600' }}>View Invoices</span>
               </button>
 
             </div>

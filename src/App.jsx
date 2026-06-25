@@ -9,7 +9,8 @@ import {
   Cpu, 
   Menu, 
   X,
-  Factory
+  Tag,
+  Receipt
 } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import CustomerManager from './components/CustomerManager';
@@ -18,230 +19,170 @@ import ProductionTracker from './components/ProductionTracker';
 import FeedbackManager from './components/FeedbackManager';
 import ReportsAnalytics from './components/ReportsAnalytics';
 import FutureScope from './components/FutureScope';
+import YarnRateMaster from './components/YarnRateMaster';
+import InvoiceManager from './components/InvoiceManager';
 
-// Initial Mock Data to populate LocalStorage if empty
+// ─────────────────────────────────────────────
+// Initial Mock Data
+// ─────────────────────────────────────────────
 const INITIAL_CUSTOMERS = [
-  {
-    id: "CUST-001",
-    name: "Lakshmi Sarees",
-    phone: "9876543210",
-    address: "12, Weaver Street, Salem, TN",
-    materialSource: "Company Supplied",
-    customerType: "Regular Customer"
-  },
-  {
-    id: "CUST-002",
-    name: "Kumar Textiles",
-    phone: "9443219876",
-    address: "45, Cotton Mills Area, Erode, TN",
-    materialSource: "Market Supply",
-    customerType: "Regular Customer"
-  },
-  {
-    id: "CUST-003",
-    name: "Revathi Fabrics",
-    phone: "8877665544",
-    address: "8, Handloom Complex, Madurai, TN",
-    materialSource: "Company Supplied",
-    customerType: "New Customer"
-  },
-  {
-    id: "CUST-004",
-    name: "Royal Looms",
-    phone: "9001234567",
-    address: "Sec-3, GIDC Industrial Estate, Surat, GJ",
-    materialSource: "Market Supply",
-    customerType: "Regular Customer"
-  }
+  { id: "CUST-001", name: "Lakshmi Sarees",    phone: "9876543210", address: "12, Weaver Street, Salem, TN",             materialSource: "Company Supplied", customerType: "Regular Customer" },
+  { id: "CUST-002", name: "Kumar Textiles",    phone: "9443219876", address: "45, Cotton Mills Area, Erode, TN",         materialSource: "Market Supply",     customerType: "Regular Customer" },
+  { id: "CUST-003", name: "Revathi Fabrics",   phone: "8877665544", address: "8, Handloom Complex, Madurai, TN",         materialSource: "Company Supplied", customerType: "New Customer"     },
+  { id: "CUST-004", name: "Royal Looms",       phone: "9001234567", address: "Sec-3, GIDC Industrial Estate, Surat, GJ", materialSource: "Market Supply",     customerType: "Regular Customer" }
 ];
 
 const INITIAL_ORDERS = [
-  {
-    id: "ORD-101",
-    customerName: "Lakshmi Sarees",
-    threadType: "Silk",
-    bobbinCount: 120,
-    bellCount: 8,
-    sections: 12,
-    borderWidth: 4,
-    deliveryDate: "2026-06-20",
-    transportRequired: true,
-    status: "In Progress",
-    progress: 60,
-    dateCreated: "2026-06-16",
-    price: 18000
-  },
-  {
-    id: "ORD-102",
-    customerName: "Kumar Textiles",
-    threadType: "Cotton",
-    bobbinCount: 200,
-    bellCount: 10,
-    sections: 15,
-    borderWidth: 2,
-    deliveryDate: "2026-06-19",
-    transportRequired: false,
-    status: "Started",
-    progress: 30,
-    dateCreated: "2026-06-17",
-    price: 25000
-  },
-  {
-    id: "ORD-103",
-    customerName: "Revathi Fabrics",
-    threadType: "Polyester",
-    bobbinCount: 80,
-    bellCount: 6,
-    sections: 8,
-    borderWidth: 3,
-    deliveryDate: "2026-06-18",
-    transportRequired: true,
-    status: "Received",
-    progress: 10,
-    dateCreated: "2026-06-18",
-    price: 9500
-  },
-  {
-    id: "ORD-104",
-    customerName: "Royal Looms",
-    threadType: "Cotton",
-    bobbinCount: 300,
-    bellCount: 12,
-    sections: 20,
-    borderWidth: 5,
-    deliveryDate: "2026-06-15",
-    transportRequired: true,
-    status: "In Progress",
-    progress: 60,
-    dateCreated: "2026-06-10",
-    price: 42000
-  },
-  {
-    id: "ORD-105",
-    customerName: "Lakshmi Sarees",
-    threadType: "Silk",
-    bobbinCount: 150,
-    bellCount: 8,
-    sections: 10,
-    borderWidth: 4,
-    deliveryDate: "2026-06-25",
-    transportRequired: false,
-    status: "Completed",
-    progress: 90,
-    dateCreated: "2026-06-14",
-    price: 21000
-  },
-  {
-    id: "ORD-106",
-    customerName: "Kumar Textiles",
-    threadType: "Blend",
-    bobbinCount: 180,
-    bellCount: 7,
-    sections: 12,
-    borderWidth: 2,
-    deliveryDate: "2026-06-12",
-    transportRequired: true,
-    status: "Delivered",
-    progress: 100,
-    dateCreated: "2026-06-05",
-    price: 23500
-  }
+  { id: "ORD-101", customerName: "Lakshmi Sarees",  threadType: "Silk",      bobbinCount: 120, bellCount: 8,  sections: 12, borderWidth: 4, deliveryDate: "2026-06-20", transportRequired: true,  status: "In Progress", progress: 60,  dateCreated: "2026-06-16", price: 18000 },
+  { id: "ORD-102", customerName: "Kumar Textiles",  threadType: "Cotton",    bobbinCount: 200, bellCount: 10, sections: 15, borderWidth: 2, deliveryDate: "2026-06-19", transportRequired: false, status: "Started",     progress: 30,  dateCreated: "2026-06-17", price: 25000 },
+  { id: "ORD-103", customerName: "Revathi Fabrics", threadType: "Polyester", bobbinCount: 80,  bellCount: 6,  sections: 8,  borderWidth: 3, deliveryDate: "2026-06-18", transportRequired: true,  status: "Received",    progress: 10,  dateCreated: "2026-06-18", price: 9500  },
+  { id: "ORD-104", customerName: "Royal Looms",     threadType: "Cotton",    bobbinCount: 300, bellCount: 12, sections: 20, borderWidth: 5, deliveryDate: "2026-06-15", transportRequired: true,  status: "In Progress", progress: 60,  dateCreated: "2026-06-10", price: 42000 },
+  { id: "ORD-105", customerName: "Lakshmi Sarees",  threadType: "Silk",      bobbinCount: 150, bellCount: 8,  sections: 10, borderWidth: 4, deliveryDate: "2026-06-25", transportRequired: false, status: "Completed",   progress: 90,  dateCreated: "2026-06-14", price: 21000 },
+  { id: "ORD-106", customerName: "Kumar Textiles",  threadType: "Blend",     bobbinCount: 180, bellCount: 7,  sections: 12, borderWidth: 2, deliveryDate: "2026-06-12", transportRequired: true,  status: "Delivered",   progress: 100, dateCreated: "2026-06-05", price: 23500 }
 ];
 
 const INITIAL_FEEDBACKS = [
-  {
-    id: "FB-001",
-    orderId: "ORD-106",
-    customerName: "Kumar Textiles",
-    deliveryExperience: "On Time",
-    qualityExperience: "Excellent",
-    futurePartnership: "Definitely",
-    comments: "Yarn warping was perfect, no breakage during weaving."
-  },
-  {
-    id: "FB-002",
-    orderId: "ORD-105",
-    customerName: "Lakshmi Sarees",
-    deliveryExperience: "Before Time",
-    qualityExperience: "Good",
-    futurePartnership: "Definitely",
-    comments: "Very prompt completion. Appreciate the support."
-  }
+  { id: "FB-001", orderId: "ORD-106", customerName: "Kumar Textiles",  deliveryExperience: "On Time",     qualityExperience: "Excellent", futurePartnership: "Definitely", comments: "Yarn warping was perfect, no breakage during weaving." },
+  { id: "FB-002", orderId: "ORD-105", customerName: "Lakshmi Sarees",  deliveryExperience: "Before Time", qualityExperience: "Good",      futurePartnership: "Definitely", comments: "Very prompt completion. Appreciate the support." }
 ];
 
+const INITIAL_YARN_RATES = [
+  { id: "YR-001", yarnType: "Cotton",    ratePerThousand: 66 },
+  { id: "YR-002", yarnType: "Silk",      ratePerThousand: 75 },
+  { id: "YR-003", yarnType: "Polyester", ratePerThousand: 55 },
+  { id: "YR-004", yarnType: "Blend",     ratePerThousand: 60 },
+  { id: "YR-005", yarnType: "Wool",      ratePerThousand: 80 },
+  { id: "YR-006", yarnType: "Linen",     ratePerThousand: 70 }
+];
+
+// ─────────────────────────────────────────────
+// Invoice auto-generation helper
+// ─────────────────────────────────────────────
+const generateInvoiceForOrder = (order, yarnRates, existingInvoices) => {
+  // Don't duplicate
+  if (existingInvoices.some(inv => inv.orderId === order.id)) return null;
+
+  const rateObj = yarnRates.find(r => r.yarnType === order.threadType);
+  const ratePerThousand = rateObj ? rateObj.ratePerThousand : 0;
+  const amountPerBell = ratePerThousand > 0
+    ? (order.bobbinCount * ratePerThousand) / 1000
+    : 0;
+  const totalAmount = amountPerBell * order.bellCount;
+
+  const invNum = `INV-${Date.now().toString().slice(-5)}`;
+  return {
+    id: invNum,
+    orderId: order.id,
+    customerName: order.customerName,
+    yarnType: order.threadType,
+    yarnCount: order.bobbinCount,
+    bellCount: order.bellCount,
+    ratePerThousand,
+    amountPerBell,
+    totalAmount,
+    orderDate: order.dateCreated,
+    deliveryDate: order.deliveryDate,
+    invoiceDate: new Date("2026-06-18").toISOString().split('T')[0],
+    status: 'Draft',
+    notes: ''
+  };
+};
+
+// ─────────────────────────────────────────────
+// Main App
+// ─────────────────────────────────────────────
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [customers, setCustomers] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [feedbacks, setFeedbacks] = useState([]);
+  const [customers,  setCustomers]  = useState([]);
+  const [orders,     setOrders]     = useState([]);
+  const [feedbacks,  setFeedbacks]  = useState([]);
+  const [yarnRates,  setYarnRates]  = useState([]);
+  const [invoices,   setInvoices]   = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Load state from local storage or set initial mock data
+  // ── Load from localStorage ──────────────────
   useEffect(() => {
+    // Customers
     const storedCustomers = localStorage.getItem('warpwrap_customers');
-    const storedOrders = localStorage.getItem('warpwrap_orders');
-    const storedFeedbacks = localStorage.getItem('warpwrap_feedback');
-
     if (storedCustomers) {
       try {
         const parsed = JSON.parse(storedCustomers);
-        // Verify structural fields
-        if (parsed.length > 0 && parsed[0].materialSource === undefined) {
-          throw new Error("Legacy customer format");
-        }
+        if (parsed.length > 0 && parsed[0].materialSource === undefined) throw new Error("Legacy");
         setCustomers(parsed);
-      } catch (err) {
-        localStorage.setItem('warpwrap_customers', JSON.stringify(INITIAL_CUSTOMERS));
-        setCustomers(INITIAL_CUSTOMERS);
-      }
-    } else {
-      localStorage.setItem('warpwrap_customers', JSON.stringify(INITIAL_CUSTOMERS));
-      setCustomers(INITIAL_CUSTOMERS);
-    }
+      } catch { localStorage.setItem('warpwrap_customers', JSON.stringify(INITIAL_CUSTOMERS)); setCustomers(INITIAL_CUSTOMERS); }
+    } else { localStorage.setItem('warpwrap_customers', JSON.stringify(INITIAL_CUSTOMERS)); setCustomers(INITIAL_CUSTOMERS); }
 
+    // Orders
+    const storedOrders = localStorage.getItem('warpwrap_orders');
     if (storedOrders) {
       try {
         const parsed = JSON.parse(storedOrders);
-        // Verify price and progress fields are defined
-        if (parsed.length > 0 && (parsed[0].price === undefined || parsed[0].progress === undefined)) {
-          throw new Error("Legacy order format");
-        }
+        if (parsed.length > 0 && (parsed[0].price === undefined || parsed[0].progress === undefined)) throw new Error("Legacy");
         setOrders(parsed);
-      } catch (err) {
-        localStorage.setItem('warpwrap_orders', JSON.stringify(INITIAL_ORDERS));
-        setOrders(INITIAL_ORDERS);
-      }
-    } else {
-      localStorage.setItem('warpwrap_orders', JSON.stringify(INITIAL_ORDERS));
-      setOrders(INITIAL_ORDERS);
-    }
+      } catch { localStorage.setItem('warpwrap_orders', JSON.stringify(INITIAL_ORDERS)); setOrders(INITIAL_ORDERS); }
+    } else { localStorage.setItem('warpwrap_orders', JSON.stringify(INITIAL_ORDERS)); setOrders(INITIAL_ORDERS); }
 
+    // Feedbacks
+    const storedFeedbacks = localStorage.getItem('warpwrap_feedback');
     if (storedFeedbacks) {
       try {
         const parsed = JSON.parse(storedFeedbacks);
-        if (parsed.length > 0 && parsed[0].deliveryExperience === undefined) {
-          throw new Error("Legacy feedback format");
-        }
+        if (parsed.length > 0 && parsed[0].deliveryExperience === undefined) throw new Error("Legacy");
         setFeedbacks(parsed);
-      } catch (err) {
-        localStorage.setItem('warpwrap_feedback', JSON.stringify(INITIAL_FEEDBACKS));
-        setFeedbacks(INITIAL_FEEDBACKS);
-      }
+      } catch { localStorage.setItem('warpwrap_feedback', JSON.stringify(INITIAL_FEEDBACKS)); setFeedbacks(INITIAL_FEEDBACKS); }
+    } else { localStorage.setItem('warpwrap_feedback', JSON.stringify(INITIAL_FEEDBACKS)); setFeedbacks(INITIAL_FEEDBACKS); }
+
+    // Yarn Rates
+    const storedYarnRates = localStorage.getItem('warpwrap_yarn_rates');
+    if (storedYarnRates) {
+      try { setYarnRates(JSON.parse(storedYarnRates)); }
+      catch { localStorage.setItem('warpwrap_yarn_rates', JSON.stringify(INITIAL_YARN_RATES)); setYarnRates(INITIAL_YARN_RATES); }
+    } else { localStorage.setItem('warpwrap_yarn_rates', JSON.stringify(INITIAL_YARN_RATES)); setYarnRates(INITIAL_YARN_RATES); }
+
+    // Invoices
+    const storedInvoices = localStorage.getItem('warpwrap_invoices');
+    if (storedInvoices) {
+      try { setInvoices(JSON.parse(storedInvoices)); }
+      catch { localStorage.setItem('warpwrap_invoices', JSON.stringify([])); setInvoices([]); }
     } else {
-      localStorage.setItem('warpwrap_feedback', JSON.stringify(INITIAL_FEEDBACKS));
-      setFeedbacks(INITIAL_FEEDBACKS);
+      // Auto-generate draft invoices for all existing orders on first load
+      const rates = storedYarnRates ? JSON.parse(storedYarnRates) : INITIAL_YARN_RATES;
+      const ordersToUse = storedOrders ? JSON.parse(storedOrders) : INITIAL_ORDERS;
+      const generatedInvoices = [];
+      ordersToUse.forEach(order => {
+        const inv = generateInvoiceForOrder(order, rates, generatedInvoices);
+        if (inv) generatedInvoices.push(inv);
+      });
+      localStorage.setItem('warpwrap_invoices', JSON.stringify(generatedInvoices));
+      setInvoices(generatedInvoices);
     }
   }, []);
 
-  // Save changes to local storage when state changes
+  // ── Persist helpers ─────────────────────────
   const saveCustomers = (newCustomers) => {
     setCustomers(newCustomers);
     localStorage.setItem('warpwrap_customers', JSON.stringify(newCustomers));
   };
 
   const saveOrders = (newOrders) => {
+    // Detect newly added orders and auto-generate invoices
+    const currentIds = new Set(orders.map(o => o.id));
+    const addedOrders = newOrders.filter(o => !currentIds.has(o.id));
+
+    let updatedInvoices = [...invoices];
+    addedOrders.forEach(order => {
+      const currentYarnRates = yarnRates.length > 0 ? yarnRates : INITIAL_YARN_RATES;
+      const inv = generateInvoiceForOrder(order, currentYarnRates, updatedInvoices);
+      if (inv) updatedInvoices.push(inv);
+    });
+
     setOrders(newOrders);
     localStorage.setItem('warpwrap_orders', JSON.stringify(newOrders));
+
+    if (addedOrders.length > 0) {
+      setInvoices(updatedInvoices);
+      localStorage.setItem('warpwrap_invoices', JSON.stringify(updatedInvoices));
+    }
   };
 
   const saveFeedbacks = (newFeedbacks) => {
@@ -249,62 +190,104 @@ function App() {
     localStorage.setItem('warpwrap_feedback', JSON.stringify(newFeedbacks));
   };
 
+  const saveYarnRates = (newRates) => {
+    setYarnRates(newRates);
+    localStorage.setItem('warpwrap_yarn_rates', JSON.stringify(newRates));
+  };
+
+  const saveInvoices = (newInvoices) => {
+    setInvoices(newInvoices);
+    localStorage.setItem('warpwrap_invoices', JSON.stringify(newInvoices));
+  };
+
+  // ── Navigation items ────────────────────────
+  const navItems = [
+    { key: 'dashboard',  label: 'Dashboard',         icon: <LayoutDashboard /> },
+    { key: 'customers',  label: 'Customers',          icon: <Users /> },
+    { key: 'orders',     label: 'Orders',             icon: <FileText /> },
+    { key: 'production', label: 'Production',         icon: <Activity /> },
+    { key: 'yarn-rates', label: 'Yarn Rate Master',   icon: <Tag /> },
+    { key: 'invoices',   label: 'Invoices',           icon: <Receipt /> },
+    { key: 'feedback',   label: 'Feedback',           icon: <MessageSquare /> },
+    { key: 'reports',    label: 'Reports & Analytics',icon: <BarChart2 /> },
+    { key: 'future',     label: 'Future AI Scope',    icon: <Cpu /> },
+  ];
+
+  // ── Render content ──────────────────────────
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return (
-          <Dashboard 
-            orders={orders} 
-            customers={customers} 
-            setActiveTab={setActiveTab} 
+          <Dashboard
+            orders={orders}
+            customers={customers}
+            setActiveTab={setActiveTab}
+            invoices={invoices}
           />
         );
       case 'customers':
         return (
-          <CustomerManager 
-            customers={customers} 
-            saveCustomers={saveCustomers} 
-            orders={orders} 
+          <CustomerManager
+            customers={customers}
+            saveCustomers={saveCustomers}
+            orders={orders}
           />
         );
       case 'orders':
         return (
-          <OrderManager 
-            orders={orders} 
-            saveOrders={saveOrders} 
-            customers={customers} 
+          <OrderManager
+            orders={orders}
+            saveOrders={saveOrders}
+            customers={customers}
+            yarnRates={yarnRates}
           />
         );
       case 'production':
         return (
-          <ProductionTracker 
-            orders={orders} 
-            saveOrders={saveOrders} 
+          <ProductionTracker
+            orders={orders}
+            saveOrders={saveOrders}
+          />
+        );
+      case 'yarn-rates':
+        return (
+          <YarnRateMaster
+            yarnRates={yarnRates}
+            saveYarnRates={saveYarnRates}
+          />
+        );
+      case 'invoices':
+        return (
+          <InvoiceManager
+            invoices={invoices}
+            saveInvoices={saveInvoices}
+            yarnRates={yarnRates}
           />
         );
       case 'feedback':
         return (
-          <FeedbackManager 
-            feedbacks={feedbacks} 
-            saveFeedbacks={saveFeedbacks} 
-            orders={orders} 
+          <FeedbackManager
+            feedbacks={feedbacks}
+            saveFeedbacks={saveFeedbacks}
+            orders={orders}
           />
         );
       case 'reports':
         return (
-          <ReportsAnalytics 
-            orders={orders} 
-            customers={customers} 
+          <ReportsAnalytics
+            orders={orders}
+            customers={customers}
           />
         );
       case 'future':
         return <FutureScope />;
       default:
         return (
-          <Dashboard 
-            orders={orders} 
-            customers={customers} 
-            setActiveTab={setActiveTab} 
+          <Dashboard
+            orders={orders}
+            customers={customers}
+            setActiveTab={setActiveTab}
+            invoices={invoices}
           />
         );
     }
@@ -341,7 +324,7 @@ function App() {
           }}>W</div>
           <h2 style={{ fontSize: '1rem', margin: 0, fontFamily: 'Outfit' }}>WarpWrap</h2>
         </div>
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}
         >
@@ -360,61 +343,16 @@ function App() {
         </div>
 
         <div className="sidebar-nav">
-          <button 
-            className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('dashboard'); setIsSidebarOpen(false); }}
-          >
-            <LayoutDashboard />
-            <span>Dashboard</span>
-          </button>
-
-          <button 
-            className={`nav-item ${activeTab === 'customers' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('customers'); setIsSidebarOpen(false); }}
-          >
-            <Users />
-            <span>Customers</span>
-          </button>
-
-          <button 
-            className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('orders'); setIsSidebarOpen(false); }}
-          >
-            <FileText />
-            <span>Orders</span>
-          </button>
-
-          <button 
-            className={`nav-item ${activeTab === 'production' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('production'); setIsSidebarOpen(false); }}
-          >
-            <Activity />
-            <span>Production</span>
-          </button>
-
-          <button 
-            className={`nav-item ${activeTab === 'feedback' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('feedback'); setIsSidebarOpen(false); }}
-          >
-            <MessageSquare />
-            <span>Feedback</span>
-          </button>
-
-          <button 
-            className={`nav-item ${activeTab === 'reports' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('reports'); setIsSidebarOpen(false); }}
-          >
-            <BarChart2 />
-            <span>Reports & Analytics</span>
-          </button>
-
-          <button 
-            className={`nav-item ${activeTab === 'future' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('future'); setIsSidebarOpen(false); }}
-          >
-            <Cpu />
-            <span>Future AI Scope</span>
-          </button>
+          {navItems.map(item => (
+            <button
+              key={item.key}
+              className={`nav-item ${activeTab === item.key ? 'active' : ''}`}
+              onClick={() => { setActiveTab(item.key); setIsSidebarOpen(false); }}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </button>
+          ))}
         </div>
 
         <div className="sidebar-footer">
@@ -428,7 +366,7 @@ function App() {
         {renderContent()}
       </div>
 
-      {/* Mobile styling inject */}
+      {/* Mobile responsive inject */}
       <style>{`
         @media (max-width: 992px) {
           .mobile-header {

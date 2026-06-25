@@ -1210,3 +1210,103 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* =============================================
+   INVOICE STATUS BADGES
+   ============================================= */
+.invoice-status-draft {
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+.invoice-status-approved {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.invoice-status-rejected {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.invoice-status-final {
+  background-color: #eef2ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+}
+
+/* =============================================
+   BILLING CALCULATION BOX
+   ============================================= */
+.billing-calc-box {
+  background: linear-gradient(135deg, #ecf0f9 0%, #e8f5ff 100%);
+  border: 1px solid #d2daf3;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* =============================================
+   KPI BADGE ADDITIONAL VARIANTS
+   ============================================= */
+.kpi-badge.warning {
+  background-color: var(--warning-light);
+  color: #92400e;
+}
+.kpi-badge.info {
+  background-color: var(--info-light);
+  color: #0e7490;
+}
+
+/* =============================================
+   YARN RATE TABLE EXTRAS
+   ============================================= */
+.yarn-rate-row:hover {
+  background-color: #f8fafc;
+}
+
+/* =============================================
+   PRINT STYLES — Invoice PDF
+   ============================================= */
+@media print {
+  /* Hide everything except the invoice print wrapper */
+  body > #root > .app-container > .sidebar,
+  body > #root > .app-container > .main-viewport > *:not(.invoice-print-wrapper),
+  .mobile-header,
+  .invoice-print-actions {
+    display: none !important;
+  }
+
+  .invoice-print-wrapper {
+    position: static !important;
+    background: none !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+  }
+
+  .invoice-print-wrapper > div {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  /* Force page break safety */
+  table {
+    page-break-inside: avoid;
+  }
+}
+
+/* =============================================
+   INVOICE DETAIL SIDE PANEL RESPONSIVE
+   ============================================= */
+@media (max-width: 900px) {
+  .invoice-split-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+

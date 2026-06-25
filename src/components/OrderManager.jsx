@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Plus, Edit2, Trash2, Calendar, Truck, Eye, AlertTriangle, CheckCircle, Clock, X, Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Plus, Edit2, Trash2, Calendar, Truck, Eye, AlertTriangle, CheckCircle, Clock, X, Info, FileText, IndianRupee } from 'lucide-react';
 
 // Prediction Helper functions
 export const calculateCompletionDays = (bobbins, bells, sections) => {
@@ -57,7 +57,7 @@ export const calculateWorkload = (orders) => {
   }
 };
 
-function OrderManager({ orders, saveOrders, customers }) {
+function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showModal, setShowModal] = useState(false);
@@ -66,7 +66,7 @@ function OrderManager({ orders, saveOrders, customers }) {
 
   // Form State
   const [customerName, setCustomerName] = useState('');
-  const [threadType, setThreadType] = useState('Cotton');
+  const [threadType, setThreadType] = useState('');
   const [bobbinCount, setBobbinCount] = useState('');
   const [bellCount, setBellCount] = useState('');
   const [sections, setSections] = useState('');
@@ -77,6 +77,32 @@ function OrderManager({ orders, saveOrders, customers }) {
   const [price, setPrice] = useState('');
   const [formError, setFormError] = useState('');
 
+  // Available yarn types — from rate master if available, else fallback
+  const FALLBACK_YARNS = ['Cotton', 'Silk', 'Polyester', 'Blend', 'Wool', 'Linen'];
+  const availableYarnTypes = yarnRates.length > 0
+    ? yarnRates.map(r => r.yarnType)
+    : FALLBACK_YARNS;
+
+  // Auto-calculate billing whenever relevant fields change
+  const getAutoCalculatedPrice = (type, yarnCnt, bellCnt) => {
+    const rateObj = yarnRates.find(r => r.yarnType === type);
+    if (!rateObj) return null;
+    const y = parseFloat(yarnCnt) || 0;
+    const b = parseFloat(bellCnt) || 0;
+    if (y <= 0 || b <= 0) return null;
+    const amtPerBell = (y * rateObj.ratePerThousand) / 1000;
+    return { amtPerBell, total: amtPerBell * b, rate: rateObj.ratePerThousand };
+  };
+
+  const liveBilling = getAutoCalculatedPrice(threadType, bobbinCount, bellCount);
+
+  // Auto-populate price when billing inputs change
+  useEffect(() => {
+    if (liveBilling) {
+      setPrice(liveBilling.total.toFixed(2));
+    }
+  }, [threadType, bobbinCount, bellCount]);
+
   // Handle open modal for Add
   const handleAddClick = () => {
     if (customers.length === 0) {
@@ -85,14 +111,16 @@ function OrderManager({ orders, saveOrders, customers }) {
     }
     setEditingOrder(null);
     setCustomerName(customers[0].name);
-    setThreadType('Cotton');
-    setBobbinCount('100');
+    const defaultType = availableYarnTypes[0] || 'Cotton';
+    setThreadType(defaultType);
+    setBobbinCount('8350');
     setBellCount('8');
     setSections('10');
     setBorderWidth('2');
     setDeliveryDate('2026-06-20');
     setTransportRequired(false);
     setStatus('Received');
+    // Price will be auto-set by useEffect
     setPrice('15000');
     setFormError('');
     setShowModal(true);
@@ -128,7 +156,7 @@ function OrderManager({ orders, saveOrders, customers }) {
     e.preventDefault();
 
     if (!bobbinCount || parseFloat(bobbinCount) <= 0) {
-      setFormError("Bobbin Count must be a valid positive number.");
+      setFormError("Total Yarns must be a valid positive number.");
       return;
     }
     if (!bellCount || parseFloat(bellCount) <= 0) {
@@ -357,7 +385,7 @@ function OrderManager({ orders, saveOrders, customers }) {
                             {order.threadType} Thread
                           </span>
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            {order.bobbinCount} Bobbins | {order.bellCount} Bells | {order.sections} Sec
+                             {order.bobbinCount.toLocaleString()} Yarns | {order.bellCount} Bells | {order.sections} Sec
                           </span>
                         </div>
                       </td>
@@ -502,18 +530,15 @@ function OrderManager({ orders, saveOrders, customers }) {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label className="form-label">Thread Type</label>
+                    <label className="form-label">Yarn Type</label>
                     <select 
                       className="form-input"
                       value={threadType}
                       onChange={(e) => setThreadType(e.target.value)}
                     >
-                      <option value="Cotton">Cotton</option>
-                      <option value="Silk">Silk</option>
-                      <option value="Polyester">Polyester</option>
-                      <option value="Blend">Blend</option>
-                      <option value="Wool">Wool</option>
-                      <option value="Linen">Linen</option>
+                      {availableYarnTypes.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
                     </select>
                   </div>
                   
@@ -531,7 +556,7 @@ function OrderManager({ orders, saveOrders, customers }) {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label className="form-label">Bobbin Count</label>
+                    <label className="form-label">Total Yarns</label>
                     <input 
                       type="number" 
                       className="form-input"
@@ -569,9 +594,43 @@ function OrderManager({ orders, saveOrders, customers }) {
                       className="form-input"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
+                      style={liveBilling ? { background: '#f0fdf4', borderColor: '#a7f3d0' } : {}}
                     />
+                    {liveBilling && (
+                      <div style={{ fontSize: '0.72rem', color: 'var(--success)', marginTop: '4px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <span>🧮 Auto: ₹{liveBilling.amtPerBell.toFixed(2)}/bell × {bellCount} bells = ₹{liveBilling.total.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {!liveBilling && yarnRates.length > 0 && (
+                      <div style={{ fontSize: '0.72rem', color: 'var(--warning)', marginTop: '4px' }}>
+                        ⚠️ Set yarn type rate in Yarn Rate Master for auto-calc
+                      </div>
+                    )}
                   </div>
                 </div>
+
+                {/* Live Billing Summary */}
+                {liveBilling && (
+                  <div className="billing-calc-box" style={{ margin: '0 0 4px' }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <IndianRupee size={13} /> Auto-Calculated Billing
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', fontSize: '0.78rem' }}>
+                      <div style={{ textAlign: 'center', background: 'white', padding: '8px', borderRadius: '6px', border: '1px solid #e0e7ff' }}>
+                        <div style={{ color: '#64748b', marginBottom: '3px' }}>Rate / 1000</div>
+                        <strong style={{ color: '#4f46e5' }}>₹{liveBilling.rate}</strong>
+                      </div>
+                      <div style={{ textAlign: 'center', background: 'white', padding: '8px', borderRadius: '6px', border: '1px solid #e0e7ff' }}>
+                        <div style={{ color: '#64748b', marginBottom: '3px' }}>Amt / Bell</div>
+                        <strong style={{ color: '#4f46e5' }}>₹{liveBilling.amtPerBell.toFixed(4)}</strong>
+                      </div>
+                      <div style={{ textAlign: 'center', background: '#ecf0f9', padding: '8px', borderRadius: '6px', border: '1px solid #d2daf3' }}>
+                        <div style={{ color: '#64748b', marginBottom: '3px' }}>Total</div>
+                        <strong style={{ color: '#312e81', fontSize: '0.9rem' }}>₹{liveBilling.total.toFixed(2)}</strong>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="form-row">
                   <div className="form-group">
@@ -653,7 +712,7 @@ function OrderManager({ orders, saveOrders, customers }) {
                     <p style={{ fontWeight: '600' }}>{viewingOrder.borderWidth} inches</p>
                   </div>
                   <div>
-                    <span className="text-muted" style={{ fontSize: '0.75rem' }}>Bobbin Count</span>
+                    <span className="text-muted" style={{ fontSize: '0.75rem' }}>Total Yarns</span>
                     <p style={{ fontWeight: '600' }}>{viewingOrder.bobbinCount}</p>
                   </div>
                   <div>
@@ -690,27 +749,63 @@ function OrderManager({ orders, saveOrders, customers }) {
                   <span>Transport Logistics: {viewingOrder.transportRequired ? 'Required (Included)' : 'Self Pickup by Client'}</span>
                 </div>
 
-                {/* Prediction Breakdown in Details */}
-                <div className="prediction-box" style={{ margin: 0 }}>
-                  <div className="prediction-box-header" style={{ color: '#1e3a8a' }}>
-                    <Info size={14} />
-                    <span>AI Prediction Forecasts</span>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span className="text-muted">Est. Production Duration:</span>
-                      <strong style={{ color: 'var(--primary)' }}>
-                        {calculateCompletionDays(viewingOrder.bobbinCount, viewingOrder.bellCount, viewingOrder.sections)}
-                      </strong>
+                {/* Billing Calculation in Details */}
+                {(() => {
+                  const rateObj = yarnRates.find(r => r.yarnType === viewingOrder.threadType);
+                  if (rateObj) {
+                    const amtPerBell = (viewingOrder.bobbinCount * rateObj.ratePerThousand) / 1000;
+                    const totalAmt = amtPerBell * viewingOrder.bellCount;
+                    return (
+                      <div className="billing-calc-box" style={{ margin: 0 }}>
+                        <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <IndianRupee size={13} /> Billing Calculation
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.82rem' }}>
+                          {[
+                            { label: 'Rate Per 1000 Yarns', val: `₹${rateObj.ratePerThousand}` },
+                            { label: 'Total Yarns', val: viewingOrder.bobbinCount.toLocaleString() },
+                            { label: 'Bell Count', val: viewingOrder.bellCount },
+                            { label: 'Amount Per Bell', val: `₹${amtPerBell.toFixed(4)}` },
+                          ].map(row => (
+                            <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <span style={{ color: '#64748b' }}>{row.label}</span>
+                              <strong>{row.val}</strong>
+                            </div>
+                          ))}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '8px', borderTop: '1px solid #d2daf3', marginTop: '4px' }}>
+                            <span style={{ fontWeight: 700, color: '#1e3a8a' }}>Total Amount</span>
+                            <strong style={{ color: '#4f46e5', fontSize: '1rem' }}>₹{totalAmt.toFixed(2)}</strong>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="prediction-box" style={{ margin: 0 }}>
+                      <div className="prediction-box-header" style={{ color: '#1e3a8a' }}>
+                        <Info size={14} />
+                        <span>AI Prediction Forecasts</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span className="text-muted">Est. Production Duration:</span>
+                          <strong style={{ color: 'var(--primary)' }}>
+                            {calculateCompletionDays(viewingOrder.bobbinCount, viewingOrder.bellCount, viewingOrder.sections)}
+                          </strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span className="text-muted">Delay Risk Warning:</span>
+                          <strong className={`risk-indicator ${calculateDelayRisk(viewingOrder.deliveryDate, viewingOrder.progress, viewingOrder.status).color}`}>
+                            {calculateDelayRisk(viewingOrder.deliveryDate, viewingOrder.progress, viewingOrder.status).label}
+                          </strong>
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--warning)', marginTop: '4px' }}>
+                          ⚠️ Add this yarn type to Yarn Rate Master for billing breakdown.
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span className="text-muted">Delay Risk Warning:</span>
-                      <strong className={`risk-indicator ${calculateDelayRisk(viewingOrder.deliveryDate, viewingOrder.progress, viewingOrder.status).color}`}>
-                        {calculateDelayRisk(viewingOrder.deliveryDate, viewingOrder.progress, viewingOrder.status).label}
-                      </strong>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
             </div>
             <div className="modal-footer">
