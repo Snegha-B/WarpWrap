@@ -255,7 +255,7 @@ function FeedbackManager({ feedbacks, saveFeedbacks, orders }) {
                     </span>
                   </div>
 
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontStyle: 'italic', backgroundColor: '#f8fafc', padding: '10px 14px', borderRadius: 'var(--radius-sm)', borderLeft: '3px solid #cbd5e1' }}>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontStyle: 'italic', backgroundColor: 'var(--bg-app)', padding: '10px 14px', borderRadius: 'var(--radius-sm)', borderLeft: '3px solid #cbd5e1' }}>
                     "{fb.comments}"
                   </p>
 

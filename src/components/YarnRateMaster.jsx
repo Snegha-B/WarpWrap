@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Tag, Plus, Edit2, Trash2, X, IndianRupee, Info, Package } from 'lucide-react';
 
 function YarnRateMaster({ yarnRates, saveYarnRates }) {
@@ -169,7 +169,7 @@ function YarnRateMaster({ yarnRates, saveYarnRates }) {
           <div className="card-header">
             <div className="card-title">
               <h3>
-                <Tag size={18} style={{ color: 'var(--primary)' }} />
+                <Tag size={18} style={{ color: 'var(--success)' }} />
                 Yarn Rate Schedule
               </h3>
             </div>
@@ -183,7 +183,7 @@ function YarnRateMaster({ yarnRates, saveYarnRates }) {
                 <tr>
                   <th>Yarn Type</th>
                   <th>Rate Per 1000 Yarns</th>
-                  <th>Example: 100 Yarns × 8 Bells</th>
+                  <th>Example: 8,350 Yarns × 8 Bells</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
@@ -224,10 +224,26 @@ function YarnRateMaster({ yarnRates, saveYarnRates }) {
                       </td>
                       <td>
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                          <span style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: '4px' }}>
-                            Per Bell: <strong style={{ color: 'var(--text-main)' }}>₹{preview.amtPerBell.toFixed(2)}</strong>
+                          <span
+  style={{
+    background: 'rgba(59,130,246,0.15)',
+    color: 'var(--text-main)',
+    border: '1px solid rgba(59,130,246,0.35)',
+    padding: '2px 8px',
+    borderRadius: '4px'
+  }}
+>
+  Per Bell: <strong style={{ color: 'var(--text-main)' }}>₹{preview.amtPerBell.toFixed(2)}</strong>
                           </span>
-                          <span style={{ background: '#f0fdf4', padding: '2px 8px', borderRadius: '4px' }}>
+                          <span
+  style={{
+    background: 'rgba(16,185,129,0.15)',
+    color: 'var(--text-main)',
+    border: '1px solid rgba(16,185,129,0.35)',
+    padding: '2px 8px',
+    borderRadius: '4px'
+  }}
+>
                             8,350 Yarns × 8 Bells: <strong style={{ color: 'var(--success)' }}>₹{preview.total.toFixed(2)}</strong>
                           </span>
                         </div>
@@ -283,7 +299,7 @@ function YarnRateMaster({ yarnRates, saveYarnRates }) {
               <div className="modal-body">
                 {formError && (
                   <div style={{
-                    backgroundColor: 'var(--danger-light)',
+                    backgroundColor: 'rgba(239,68,68,0.15)',
                     color: 'var(--danger)',
                     padding: '10px 14px',
                     borderRadius: 'var(--radius-sm)',
@@ -334,12 +350,12 @@ function YarnRateMaster({ yarnRates, saveYarnRates }) {
                 {/* Live Preview */}
                 {yarnType.trim() && parseFloat(ratePerThousand) > 0 && (
                   <div style={{
-                    background: 'linear-gradient(135deg, #ecf0f9, #e8f5ff)',
-                    border: '1px solid #d2daf3',
+                   background: 'var(--bg-app)',
+border: '1px solid var(--border-color)', 
                     borderRadius: 'var(--radius-md)',
                     padding: '14px 16px'
                   }}>
-                    <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#312e81', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <Info size={13} /> Live Billing Preview
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.8rem' }}>
@@ -350,7 +366,10 @@ function YarnRateMaster({ yarnRates, saveYarnRates }) {
                         const apb = (ex.yarns * parseFloat(ratePerThousand)) / 1000;
                         const tot = apb * ex.bells;
                         return (
-                          <div key={ex.label} style={{ background: 'white', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid #e0e7ff' }}>
+                          <div key={ex.label} style={{ background: 'var(--bg-card)',
+padding: '8px 12px',
+borderRadius: 'var(--radius-sm)',
+border: '1px solid var(--border-color)' }}>
                             <div style={{ color: 'var(--text-muted)', marginBottom: '4px' }}>{ex.label}</div>
                             <div style={{ fontWeight: 600, color: 'var(--primary)' }}>₹{tot.toFixed(2)} total</div>
                           </div>

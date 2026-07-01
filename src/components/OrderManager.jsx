@@ -1,61 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit2, Trash2, Calendar, Truck, Eye, AlertTriangle, CheckCircle, Clock, X, Info, FileText, IndianRupee } from 'lucide-react';
-
-// Prediction Helper functions
-export const calculateCompletionDays = (bobbins, bells, sections) => {
-  const b = parseFloat(bobbins) || 0;
-  const bl = parseFloat(bells) || 0;
-  const s = parseFloat(sections) || 0;
-  
-  const workUnits = b * bl * s;
-  if (workUnits === 0) return "Select parameters";
-  if (workUnits < 10000) return "1 Day";
-  if (workUnits <= 30000) return "3 Days";
-  return "5 Days";
-};
-
-export const calculateDelayRisk = (deliveryDateStr, progressPercent, status) => {
-  if (status === 'Delivered' || status === 'Completed') {
-    return { label: 'On Time', color: 'green', code: 'GREEN' };
-  }
-
-  const today = new Date("2026-06-18"); // Central system date
-  const deliveryDate = new Date(deliveryDateStr);
-  
-  if (isNaN(deliveryDate.getTime())) {
-    return { label: 'On Time', color: 'green', code: 'GREEN' };
-  }
-
-  const diffTime = deliveryDate - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  const progress = parseFloat(progressPercent) || 0;
-
-  if (diffDays < 0) {
-    return { label: 'High Delay Risk', color: 'red', code: 'RED', reason: 'Delivery date has already passed!' };
-  }
-  
-  if (diffDays <= 1 && progress < 80) {
-    return { label: 'High Delay Risk', color: 'red', code: 'RED', reason: 'Less than 24 hours left and progress is below 80%.' };
-  }
-  
-  if (diffDays <= 3 && progress < 50) {
-    return { label: 'Possible Delay', color: 'yellow', code: 'YELLOW', reason: 'Less than 3 days left and progress is below 50%.' };
-  }
-
-  return { label: 'On Time', color: 'green', code: 'GREEN' };
-};
-
-export const calculateWorkload = (orders) => {
-  const activeOrdersCount = orders.filter(o => o.status !== 'Delivered' && o.status !== 'Completed').length;
-  
-  if (activeOrdersCount < 3) {
-    return { label: 'Low Workload', color: 'green', count: activeOrdersCount };
-  } else if (activeOrdersCount <= 7) {
-    return { label: 'Moderate Workload', color: 'yellow', count: activeOrdersCount };
-  } else {
-    return { label: 'Heavy Workload', color: 'red', count: activeOrdersCount };
-  }
-};
+import { Search, Plus, Edit2, Trash2, Calendar, Truck, Eye, AlertTriangle, CheckCircle, X, Info, FileText, IndianRupee } from 'lucide-react';
+import { calculateCompletionDays, calculateDelayRisk, calculateWorkload } from './orderUtils';
 
 function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -67,14 +12,14 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
   // Form State
   const [customerName, setCustomerName] = useState('');
   const [threadType, setThreadType] = useState('');
-  const [bobbinCount, setBobbinCount] = useState('');
+  const [totalYarns, setTotalYarns] = useState('');
   const [bellCount, setBellCount] = useState('');
   const [sections, setSections] = useState('');
   const [borderWidth, setBorderWidth] = useState('');
   const [deliveryDate, setDeliveryDate] = useState('');
   const [transportRequired, setTransportRequired] = useState(false);
   const [status, setStatus] = useState('Received');
-  const [price, setPrice] = useState('');
+  const [specialNotes, setSpecialNotes] = useState('');
   const [formError, setFormError] = useState('');
 
   // Available yarn types — from rate master if available, else fallback
@@ -84,24 +29,20 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
     : FALLBACK_YARNS;
 
   // Auto-calculate billing whenever relevant fields change
-  const getAutoCalculatedPrice = (type, yarnCnt, bellCnt) => {
+  const getAutoCalculatedPrice = (type, yarnsInput, bellsInput) => {
     const rateObj = yarnRates.find(r => r.yarnType === type);
     if (!rateObj) return null;
-    const y = parseFloat(yarnCnt) || 0;
-    const b = parseFloat(bellCnt) || 0;
+    const y = parseFloat(yarnsInput) || 0;
+    const b = parseFloat(bellsInput) || 0;
     if (y <= 0 || b <= 0) return null;
+
+    // Amount Per Bell = (Total Yarns × Rate Per 1000 Yarns) ÷ 1000
     const amtPerBell = (y * rateObj.ratePerThousand) / 1000;
-    return { amtPerBell, total: amtPerBell * b, rate: rateObj.ratePerThousand };
+    const total = amtPerBell * b;
+    return { amtPerBell, total, rate: rateObj.ratePerThousand };
   };
 
-  const liveBilling = getAutoCalculatedPrice(threadType, bobbinCount, bellCount);
-
-  // Auto-populate price when billing inputs change
-  useEffect(() => {
-    if (liveBilling) {
-      setPrice(liveBilling.total.toFixed(2));
-    }
-  }, [threadType, bobbinCount, bellCount]);
+  const liveBilling = getAutoCalculatedPrice(threadType, totalYarns, bellCount);
 
   // Handle open modal for Add
   const handleAddClick = () => {
@@ -110,18 +51,17 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
       return;
     }
     setEditingOrder(null);
-    setCustomerName(customers[0].name);
+    setCustomerName(customers[0].companyName || customers[0].name);
     const defaultType = availableYarnTypes[0] || 'Cotton';
     setThreadType(defaultType);
-    setBobbinCount('8350');
-    setBellCount('8');
+    setTotalYarns('8350');
+    setBellCount('6');
     setSections('10');
     setBorderWidth('2');
     setDeliveryDate('2026-06-20');
     setTransportRequired(false);
     setStatus('Received');
-    // Price will be auto-set by useEffect
-    setPrice('15000');
+    setSpecialNotes('');
     setFormError('');
     setShowModal(true);
   };
@@ -131,14 +71,14 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
     setEditingOrder(order);
     setCustomerName(order.customerName);
     setThreadType(order.threadType);
-    setBobbinCount(order.bobbinCount.toString());
+    setTotalYarns((order.totalYarns || order.bobbinCount || 0).toString());
     setBellCount(order.bellCount.toString());
-    setSections(order.sections.toString());
-    setBorderWidth(order.borderWidth.toString());
+    setSections((order.sections || 10).toString());
+    setBorderWidth((order.borderWidth || 2).toString());
     setDeliveryDate(order.deliveryDate);
-    setTransportRequired(order.transportRequired);
+    setTransportRequired(order.transportRequired || false);
     setStatus(order.status);
-    setPrice(order.price.toString());
+    setSpecialNotes(order.specialNotes || '');
     setFormError('');
     setShowModal(true);
   };
@@ -155,7 +95,15 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!bobbinCount || parseFloat(bobbinCount) <= 0) {
+    if (!customerName) {
+      setFormError("Please select a customer.");
+      return;
+    }
+    if (!threadType) {
+      setFormError("Please select a thread type.");
+      return;
+    }
+    if (!totalYarns || parseFloat(totalYarns) <= 0) {
       setFormError("Total Yarns must be a valid positive number.");
       return;
     }
@@ -175,10 +123,13 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
       setFormError("Delivery Date is required.");
       return;
     }
-    if (!price || parseFloat(price) <= 0) {
-      setFormError("Price must be a valid positive value.");
+
+    if (!liveBilling) {
+      setFormError("Yarn Type rate must be set in Yarn Rate Master first.");
       return;
     }
+
+    const calculatedPrice = liveBilling.total;
 
     // Auto-calculate progress based on status
     let progressVal = 10;
@@ -195,15 +146,17 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
             ...o,
             customerName,
             threadType,
-            bobbinCount: parseInt(bobbinCount),
+            totalYarns: parseInt(totalYarns),
+            bobbinCount: parseInt(totalYarns), // fallback
             bellCount: parseInt(bellCount),
             sections: parseInt(sections),
             borderWidth: parseFloat(borderWidth),
             deliveryDate,
             transportRequired,
             status,
-            price: parseFloat(price),
-            progress: progressVal
+            price: calculatedPrice,
+            progress: progressVal,
+            specialNotes: specialNotes.trim()
           };
         }
         return o;
@@ -215,15 +168,17 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
         id: `ORD-${Date.now().toString().slice(-3)}`,
         customerName,
         threadType,
-        bobbinCount: parseInt(bobbinCount),
+        totalYarns: parseInt(totalYarns),
+        bobbinCount: parseInt(totalYarns), // fallback
         bellCount: parseInt(bellCount),
         sections: parseInt(sections),
         borderWidth: parseFloat(borderWidth),
-        deliveryDate,
+        deliveryDate: deliveryDate,
         transportRequired,
         status,
-        price: parseFloat(price),
+        price: calculatedPrice,
         progress: progressVal,
+        specialNotes: specialNotes.trim(),
         dateCreated: new Date("2026-06-18").toISOString().split('T')[0] // today
       };
       saveOrders([...orders, newOrder]);
@@ -245,25 +200,25 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
 
   // Filter & Search orders
   const filteredOrders = orders.filter(order => {
-    const customerName = order.customerName || '';
-    const threadType = order.threadType || '';
+    const custName = order.customerName || '';
+    const thType = order.threadType || '';
     const id = order.id || '';
-    const matchesSearch = customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          threadType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = custName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      thType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'All' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   // Calculate live values during order creation/editing
-  const liveCompletion = calculateCompletionDays(bobbinCount, bellCount, sections);
-  
+  const liveCompletion = calculateCompletionDays(totalYarns, bellCount, sections);
+
   let tempProgress = 10;
   if (status === 'Started') tempProgress = 30;
   else if (status === 'In Progress') tempProgress = 60;
   else if (status === 'Completed') tempProgress = 90;
   else if (status === 'Delivered') tempProgress = 100;
-  
+
   const liveDelay = calculateDelayRisk(deliveryDate, tempProgress, status);
   const globalWorkload = calculateWorkload(orders);
 
@@ -273,7 +228,7 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
       <div className="section-header">
         <div className="header-title">
           <h1>Order Management</h1>
-          <p>Create, track, and predict warping specifications for individual batch runs.</p>
+          <p>Create, track, and calculate warping specifications for client warping requests.</p>
         </div>
         <button className="btn btn-primary" onClick={handleAddClick}>
           <Plus size={18} />
@@ -294,8 +249,17 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
           <span className="kpi-desc">Currently in system</span>
         </div>
 
-        <div className="kpi-card amber">
-          <div className="kpi-icon-wrapper">
+        <div
+          className="kpi-card"
+          style={{ borderLeft: "4px solid var(--danger)" }}
+        >
+          <div
+            className="kpi-icon-wrapper"
+            style={{
+              background: "hsla(0, 91%, 48%, 0.15)",
+              color: "var(--danger)"
+            }}
+          >
             <AlertTriangle size={20} />
           </div>
           <span className="kpi-title">System Workload</span>
@@ -314,11 +278,18 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
           <div className="kpi-icon-wrapper">
             <CheckCircle size={20} />
           </div>
-          <span className="kpi-title">Completed Today</span>
-          <span className="kpi-value">
-            {orders.filter(o => o.status === 'Completed' || o.status === 'Delivered').length}
+          <span className="kpi-title">Completed / Archived</span>
+          <span
+            className="kpi-value"
+            style={{
+              color: "var(--primary)",
+              fontSize: "2.4rem",
+              fontWeight: "700"
+            }}
+          >
+            {orders.filter(o => o.status !== 'Delivered' && o.status !== 'Completed').length}
           </span>
-          <span className="kpi-desc">Archived runs</span>
+          <span className="kpi-desc">Processed runs</span>
         </div>
       </div>
 
@@ -326,16 +297,16 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
       <div className="search-bar-container">
         <div className="search-input-wrapper">
           <Search />
-          <input 
-            type="text" 
-            placeholder="Search orders by Client, ID, thread..." 
+          <input
+            type="text"
+            placeholder="Search orders by Client, ID, thread..."
             className="form-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <select 
-          className="form-input" 
+        <select
+          className="form-input"
           style={{ maxWidth: '200px' }}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -368,9 +339,10 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
               </thead>
               <tbody>
                 {filteredOrders.map(order => {
-                  const complDays = calculateCompletionDays(order.bobbinCount, order.bellCount, order.sections);
+                  const yarns = order.totalYarns || order.bobbinCount || 0;
+                  const complDays = calculateCompletionDays(yarns, order.bellCount, order.sections);
                   const delayRisk = calculateDelayRisk(order.deliveryDate, order.progress, order.status);
-                  
+
                   return (
                     <tr key={order.id}>
                       <td style={{ fontWeight: '600', color: 'var(--primary)' }}>
@@ -385,7 +357,7 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                             {order.threadType} Thread
                           </span>
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                             {order.bobbinCount.toLocaleString()} Yarns | {order.bellCount} Bells | {order.sections} Sec
+                            {yarns.toLocaleString()} Yarns | {order.bellCount} Bells | {order.sections || 10} Sec
                           </span>
                         </div>
                       </td>
@@ -415,21 +387,21 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                       </td>
                       <td>
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                          <button 
+                          <button
                             className="btn btn-secondary btn-sm btn-icon"
                             title="Quick View Details"
                             onClick={() => setViewingOrder(order)}
                           >
                             <Eye size={14} />
                           </button>
-                          <button 
+                          <button
                             className="btn btn-secondary btn-sm btn-icon"
                             title="Edit Specification"
                             onClick={() => handleEditClick(order)}
                           >
                             <Edit2 size={14} />
                           </button>
-                          <button 
+                          <button
                             className="btn btn-secondary btn-sm btn-icon"
                             title="Cancel Order"
                             style={{ color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.15)' }}
@@ -487,11 +459,11 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                 <div className="prediction-box">
                   <div className="prediction-box-header">
                     <Info size={16} />
-                    <span>Live Prototype Predictions (Mini Project)</span>
+                    <span>Live Production Predictions</span>
                   </div>
                   <div className="prediction-metrics">
                     <div className="prediction-metric-row">
-                      <span className="text-muted">Estimated Completion:</span>
+                      <span className="text-muted">Estimated Duration:</span>
                       <strong style={{ color: 'var(--primary)' }}>{liveCompletion}</strong>
                     </div>
                     <div className="prediction-metric-row">
@@ -517,13 +489,13 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
 
                 <div className="form-group">
                   <label className="form-label">Customer Name</label>
-                  <select 
+                  <select
                     className="form-input"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                   >
                     {customers.map(c => (
-                      <option key={c.id} value={c.name}>{c.name}</option>
+                      <option key={c.id} value={c.companyName || c.name}>{c.companyName || c.name} ({c.name})</option>
                     ))}
                   </select>
                 </div>
@@ -531,7 +503,7 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">Yarn Type</label>
-                    <select 
+                    <select
                       className="form-input"
                       value={threadType}
                       onChange={(e) => setThreadType(e.target.value)}
@@ -541,11 +513,11 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div className="form-group">
                     <label className="form-label">Border Width (inches)</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       step="0.1"
                       className="form-input"
                       value={borderWidth}
@@ -557,18 +529,18 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">Total Yarns</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       className="form-input"
-                      value={bobbinCount}
-                      onChange={(e) => setBobbinCount(e.target.value)}
+                      value={totalYarns}
+                      onChange={(e) => setTotalYarns(e.target.value)}
                     />
                   </div>
-                  
+
                   <div className="form-group">
                     <label className="form-label">Bell Count</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       className="form-input"
                       value={bellCount}
                       onChange={(e) => setBellCount(e.target.value)}
@@ -579,8 +551,8 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">Sections</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       className="form-input"
                       value={sections}
                       onChange={(e) => setSections(e.target.value)}
@@ -589,21 +561,29 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
 
                   <div className="form-group">
                     <label className="form-label">Order Value Price (₹)</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="text"
                       className="form-input"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      style={liveBilling ? { background: '#f0fdf4', borderColor: '#a7f3d0' } : {}}
+                      value={liveBilling ? liveBilling.total.toFixed(2) : ''}
+                      readOnly={true}
+                      disabled={true}
+                      style={{
+                        background: "var(--bg-card)",
+                        borderColor: "var(--border-color)",
+                        cursor: "not-allowed",
+                        color: "var(--success)",
+                        fontWeight: 600
+                      }}
+                      placeholder="Will auto-calculate..."
                     />
                     {liveBilling && (
-                      <div style={{ fontSize: '0.72rem', color: 'var(--success)', marginTop: '4px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        <span>🧮 Auto: ₹{liveBilling.amtPerBell.toFixed(2)}/bell × {bellCount} bells = ₹{liveBilling.total.toFixed(2)}</span>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--success)', marginTop: '4px' }}>
+                        🔒 Locked: ₹{liveBilling.amtPerBell.toFixed(2)}/bell × {bellCount} bells = ₹{liveBilling.total.toFixed(2)}
                       </div>
                     )}
                     {!liveBilling && yarnRates.length > 0 && (
                       <div style={{ fontSize: '0.72rem', color: 'var(--warning)', marginTop: '4px' }}>
-                        ⚠️ Set yarn type rate in Yarn Rate Master for auto-calc
+                        ⚠️ Select yarn type with rate configured in Yarn Rate Master
                       </div>
                     )}
                   </div>
@@ -611,32 +591,43 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
 
                 {/* Live Billing Summary */}
                 {liveBilling && (
-                  <div className="billing-calc-box" style={{ margin: '0 0 4px' }}>
-                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <IndianRupee size={13} /> Auto-Calculated Billing
+                  <div className="billing-calc-box" style={{ margin: '12px 0 16px' }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <IndianRupee size={13} /> Auto-Calculated Billing Summary
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', fontSize: '0.78rem' }}>
-                      <div style={{ textAlign: 'center', background: 'white', padding: '8px', borderRadius: '6px', border: '1px solid #e0e7ff' }}>
-                        <div style={{ color: '#64748b', marginBottom: '3px' }}>Rate / 1000</div>
-                        <strong style={{ color: '#4f46e5' }}>₹{liveBilling.rate}</strong>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: '8px', fontSize: '0.75rem' }}>
+                      <div style={{ textAlign: 'center', background: 'white', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                        <div style={{ color: 'var(--text-muted)', marginBottom: '3px' }}>Rate / 1000</div>
+                        <strong style={{color: 'var(--text-muted)'  }}>₹{liveBilling.rate}</strong>
                       </div>
-                      <div style={{ textAlign: 'center', background: 'white', padding: '8px', borderRadius: '6px', border: '1px solid #e0e7ff' }}>
-                        <div style={{ color: '#64748b', marginBottom: '3px' }}>Amt / Bell</div>
-                        <strong style={{ color: '#4f46e5' }}>₹{liveBilling.amtPerBell.toFixed(4)}</strong>
+                      <div style={{ textAlign: 'center', background: 'white', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                        <div style={{color: 'var(--text-muted)', marginBottom: '3px' }}>Amount Per Bell</div>
+                        <strong style={{ color: 'var(--primary)' }}>₹{liveBilling.amtPerBell.toFixed(2)}</strong>
                       </div>
-                      <div style={{ textAlign: 'center', background: '#ecf0f9', padding: '8px', borderRadius: '6px', border: '1px solid #d2daf3' }}>
-                        <div style={{ color: '#64748b', marginBottom: '3px' }}>Total</div>
-                        <strong style={{ color: '#312e81', fontSize: '0.9rem' }}>₹{liveBilling.total.toFixed(2)}</strong>
+                      <div style={{ textAlign: 'center', background: '#ecf0f9', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                        <div style={{ color: 'var(--text-muted)', marginBottom: '3px' }}>Total Amount</div>
+                        <strong style={{ color: '#312e81', fontSize: '0.85rem' }}>₹{liveBilling.total.toFixed(2)}</strong>
                       </div>
                     </div>
                   </div>
                 )}
 
+                <div className="form-group">
+                  <label className="form-label">Special Notes</label>
+                  <textarea
+                    className="form-input"
+                    style={{ minHeight: '80px', resize: 'vertical' }}
+                    placeholder="Enter any special weaving requests, borders details, or packaging notes..."
+                    value={specialNotes}
+                    onChange={(e) => setSpecialNotes(e.target.value)}
+                  />
+                </div>
+
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">Delivery Date</label>
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       className="form-input"
                       value={deliveryDate}
                       onChange={(e) => setDeliveryDate(e.target.value)}
@@ -645,7 +636,7 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
 
                   <div className="form-group">
                     <label className="form-label">Status</label>
-                    <select 
+                    <select
                       className="form-input"
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
@@ -660,8 +651,8 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                 </div>
 
                 <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     id="transport"
                     checked={transportRequired}
                     onChange={(e) => setTransportRequired(e.target.checked)}
@@ -688,9 +679,9 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
       {/* View Details Modal */}
       {viewingOrder && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '500px' }}>
+          <div className="modal-content" style={{ maxWidth: '540px' }}>
             <div className="modal-header">
-              <h3>Order details: {viewingOrder.id}</h3>
+              <h3>Order Details: {viewingOrder.id}</h3>
               <button className="modal-close" onClick={() => setViewingOrder(null)}>
                 <X size={18} />
               </button>
@@ -713,7 +704,7 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                   </div>
                   <div>
                     <span className="text-muted" style={{ fontSize: '0.75rem' }}>Total Yarns</span>
-                    <p style={{ fontWeight: '600' }}>{viewingOrder.bobbinCount}</p>
+                    <p style={{ fontWeight: '600' }}>{(viewingOrder.totalYarns || viewingOrder.bobbinCount || 0).toLocaleString()}</p>
                   </div>
                   <div>
                     <span className="text-muted" style={{ fontSize: '0.75rem' }}>Bell Count</span>
@@ -721,7 +712,7 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                   </div>
                   <div>
                     <span className="text-muted" style={{ fontSize: '0.75rem' }}>Sections</span>
-                    <p style={{ fontWeight: '600' }}>{viewingOrder.sections}</p>
+                    <p style={{ fontWeight: '600' }}>{viewingOrder.sections || 10}</p>
                   </div>
                   <div>
                     <span className="text-muted" style={{ fontSize: '0.75rem' }}>Value / Price</span>
@@ -744,7 +735,14 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', backgroundColor: '#f8fafc', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)', fontSize: '0.85rem' }}>
+                {viewingOrder.specialNotes && (
+                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                    <span className="text-muted" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '4px' }}>Special Notes</span>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', margin: 0, whiteSpace: 'pre-wrap' }}>{viewingOrder.specialNotes}</p>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', backgroundColor: 'var(--bg-app)', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)', fontSize: '0.85rem' }}>
                   <Truck size={16} style={{ color: viewingOrder.transportRequired ? 'var(--primary)' : 'var(--text-muted)' }} />
                   <span>Transport Logistics: {viewingOrder.transportRequired ? 'Required (Included)' : 'Self Pickup by Client'}</span>
                 </div>
@@ -753,19 +751,20 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                 {(() => {
                   const rateObj = yarnRates.find(r => r.yarnType === viewingOrder.threadType);
                   if (rateObj) {
-                    const amtPerBell = (viewingOrder.bobbinCount * rateObj.ratePerThousand) / 1000;
+                    const yarns = viewingOrder.totalYarns || viewingOrder.bobbinCount || 0;
+                    const amtPerBell = (yarns * rateObj.ratePerThousand) / 1000;
                     const totalAmt = amtPerBell * viewingOrder.bellCount;
                     return (
                       <div className="billing-calc-box" style={{ margin: 0 }}>
                         <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <IndianRupee size={13} /> Billing Calculation
+                          <IndianRupee size={13} /> Billing Summary (Yarn Rate Master)
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.82rem' }}>
                           {[
-                            { label: 'Rate Per 1000 Yarns', val: `₹${rateObj.ratePerThousand}` },
-                            { label: 'Total Yarns', val: viewingOrder.bobbinCount.toLocaleString() },
+                            { label: 'Rate Per 1000 Yarns', val: `₹${rateObj.ratePerThousand.toFixed(2)}` },
+                            { label: 'Total Yarns', val: yarns.toLocaleString() },
+                            { label: 'Amount Per Bell', val: `₹${amtPerBell.toFixed(2)}` },
                             { label: 'Bell Count', val: viewingOrder.bellCount },
-                            { label: 'Amount Per Bell', val: `₹${amtPerBell.toFixed(4)}` },
                           ].map(row => (
                             <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between' }}>
                               <span style={{ color: '#64748b' }}>{row.label}</span>
@@ -784,14 +783,29 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                     <div className="prediction-box" style={{ margin: 0 }}>
                       <div className="prediction-box-header" style={{ color: '#1e3a8a' }}>
                         <Info size={14} />
-                        <span>AI Prediction Forecasts</span>
+                        <span>Production Estimations</span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span className="text-muted">Est. Production Duration:</span>
-                          <strong style={{ color: 'var(--primary)' }}>
-                            {calculateCompletionDays(viewingOrder.bobbinCount, viewingOrder.bellCount, viewingOrder.sections)}
-                          </strong>
+   <strong
+  style={{
+    background: "rgba(59,130,246,.15)",
+    color: "#93c5fd",
+    border: "1px solid rgba(59,130,246,.35)",
+    padding: "4px 10px",
+    borderRadius: "8px",
+    fontSize: "0.75rem",
+    fontWeight: 600
+  }}
+>
+  Est.{" "}
+  {calculateCompletionDays(
+    viewingOrder.totalYarns || viewingOrder.bobbinCount || 0,
+    viewingOrder.bellCount,
+    viewingOrder.sections
+  )}
+</strong>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span className="text-muted">Delay Risk Warning:</span>
@@ -800,7 +814,7 @@ function OrderManager({ orders, saveOrders, customers, yarnRates = [] }) {
                           </strong>
                         </div>
                         <div style={{ fontSize: '0.72rem', color: 'var(--warning)', marginTop: '4px' }}>
-                          ⚠️ Add this yarn type to Yarn Rate Master for billing breakdown.
+                          ⚠️ Add this yarn type to Yarn Rate Master for detailed billing breakdown.
                         </div>
                       </div>
                     </div>

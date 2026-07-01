@@ -1,6 +1,5 @@
-import React from 'react';
-import { Play, Check, ChevronRight, AlertTriangle, HelpCircle, Truck, Clipboard } from 'lucide-react';
-import { calculateCompletionDays, calculateDelayRisk } from './OrderManager';
+import { Check, ChevronRight, Clipboard, Calendar } from 'lucide-react';
+import { calculateCompletionDays, calculateDelayRisk } from './orderUtils';
 
 const STATUS_STEPS = ['Received', 'Started', 'In Progress', 'Completed', 'Delivered'];
 
@@ -19,8 +18,8 @@ function ProductionTracker({ orders, saveOrders }) {
   };
 
   // Get status color coding
-  const getStatusColorClass = (statusStr) => {
-    switch (statusStr) {
+  const getStatusColorClass = (status) => {
+    switch (status) {
       case 'Received': return 'status-received';
       case 'Started': return 'status-started';
       case 'In Progress': return 'status-inprogress';
@@ -69,15 +68,16 @@ function ProductionTracker({ orders, saveOrders }) {
       </div>
 
       {/* Production Dashboard Grid */}
-      <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', fontWeight: '600', marginBottom: '16px', color: '#0f172a' }}>
+      <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', fontWeight: '600', marginBottom: '16px', color: 'var(--text-main)' }}>
         Active Production Runs ({activeOrders.length})
       </h2>
 
       {activeOrders.length > 0 ? (
         <div className="production-tracker-grid">
           {activeOrders.map(order => {
+            const yarns = order.totalYarns || order.bobbinCount || 0;
             const progress = getProgressPercentage(order.status);
-            const complDays = calculateCompletionDays(order.bobbinCount, order.bellCount, order.sections);
+            const complDays = calculateCompletionDays(yarns, order.bellCount, order.sections);
             const delayRisk = calculateDelayRisk(order.deliveryDate, progress, order.status);
             const statusIndex = STATUS_STEPS.indexOf(order.status);
 
@@ -89,7 +89,15 @@ function ProductionTracker({ orders, saveOrders }) {
                     <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--primary)' }}>
                       {order.id}
                     </span>
-                    <h3 style={{ marginTop: '2px' }}>{order.customerName}</h3>
+                    <h3
+  style={{
+    marginTop: '2px',
+    color: 'var(--text-main)',
+    fontWeight: 700
+  }}
+>
+  {order.customerName}
+</h3>
                   </div>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
@@ -109,20 +117,21 @@ function ProductionTracker({ orders, saveOrders }) {
                     <span className="param-lbl">Yarn Type</span>
                   </div>
                   <div className="param-item">
-                    <span className="param-val">{order.bobbinCount}</span>
-                    <span className="param-lbl">Bobbins</span>
+                    <span className="param-val">{yarns.toLocaleString()}</span>
+                    <span className="param-lbl">Total Yarns</span>
                   </div>
                   <div className="param-item">
-                    <span className="param-val">{order.sections}</span>
-                    <span className="param-lbl">Sections</span>
+                    <span className="param-val">{order.bellCount || 0}</span>
+                    <span className="param-lbl">Bells</span>
                   </div>
                 </div>
 
                 {/* Visual Progress Bar */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div className="progress-details">
-                    <span>Overall Warping Progress</span>
-                    <span style={{ fontWeight: '600', color: '#0f172a' }}>{progress}%</span>
+                    <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+  Overall Warping Progress
+</span>
                   </div>
                   <div className="progress-container">
                     <div 
@@ -176,23 +185,51 @@ function ProductionTracker({ orders, saveOrders }) {
                   display: 'flex', 
                   flexDirection: 'column',
                   gap: '4px',
-                  backgroundColor: '#f8fafc', 
+                  backgroundColor: 'var(--bg-app)', 
                   padding: '10px 14px', 
                   borderRadius: 'var(--radius-md)', 
                   border: '1px solid var(--border-color)',
                   fontSize: '0.75rem' 
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span className="text-muted">Target Delivery:</span>
-                    <strong style={{ color: '#0f172a' }}>{order.deliveryDate}</strong>
+                   <span
+  style={{
+    color: "var(--text-muted)",
+    fontWeight: 500
+  }}
+>
+  Target Delivery Date:
+</span> 
+                    <strong style={{ color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Calendar size={12} className="text-muted" />
+                      {order.deliveryDate}
+                    </strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span className="text-muted">Est. Job Duration:</span>
-                    <strong>{complDays}</strong>
+                    <span
+  style={{
+    color: "var(--text-muted)",
+    fontWeight: 500
+  }}
+>
+  Est. Job Duration:
+</span>
+                    <strong style={{ color: 'var(--text-main)' }}>
+  {complDays}
+</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className="text-muted">Transport Logistics:</span>
-                    <span>{order.transportRequired ? '🚚 Required' : 'Self Pickup'}</span>
+                    <span
+  style={{
+    color: "var(--text-muted)",
+    fontWeight: 500
+  }}
+>
+  Transport Logistics:
+</span>
+                    <span style={{ color: 'var(--text-main)', fontWeight: 500 }}>
+  {order.transportRequired ? '🚚 Required' : 'Self Pickup'}
+</span>
                   </div>
                 </div>
 
@@ -227,7 +264,7 @@ function ProductionTracker({ orders, saveOrders }) {
       )}
 
       {/* Completed/Delivered Archives section */}
-      <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', fontWeight: '600', marginBottom: '16px', color: '#0f172a', marginTop: '40px' }}>
+      <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', fontWeight: '600', marginBottom: '16px', color: 'var(--text-main)', marginTop: '40px' }}>
         Archived / Completed Runs ({deliveredOrders.length})
       </h2>
 
@@ -251,7 +288,7 @@ function ProductionTracker({ orders, saveOrders }) {
                   <tr key={order.id} style={{ opacity: 0.8 }}>
                     <td style={{ fontWeight: '600', color: 'var(--primary)' }}>{order.id}</td>
                     <td style={{ fontWeight: '500' }}>{order.customerName}</td>
-                    <td>{order.threadType} ({order.bobbinCount} Bobbins, {order.sections} Sec)</td>
+                    <td>{order.threadType} ({ (order.totalYarns || order.bobbinCount || 0).toLocaleString() } Yarns, {order.sections || 10} Sec)</td>
                     <td>{order.deliveryDate}</td>
                     <td style={{ fontWeight: '600' }}>₹{order.price.toLocaleString()}</td>
                     <td>

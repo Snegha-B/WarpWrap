@@ -182,3 +182,7 @@
     border-right-color: var(--border);
   }
 }
+/* Number input arrows for Dark Theme */
+input[type="number"] {
+  color-scheme: dark;
+}

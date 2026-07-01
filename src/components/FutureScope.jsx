@@ -122,7 +122,7 @@ function FutureScope() {
               <span className="future-tag" style={{ backgroundColor: '#f3e8ff', color: '#7e22ce', borderColor: '#d8b4fe' }}>
                 {feat.status}
               </span>
-              <span className="future-tag" style={{ backgroundColor: '#f1f5f9', color: '#475569', borderColor: '#cbd5e1' }}>
+              <span className="future-tag" style={{ backgroundColor: 'var(--border-color)', color: '#475569', borderColor: '#cbd5e1' }}>
                 {feat.tech}
               </span>
             </div>

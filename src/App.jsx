@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Users, 
@@ -26,19 +26,19 @@ import InvoiceManager from './components/InvoiceManager';
 // Initial Mock Data
 // ─────────────────────────────────────────────
 const INITIAL_CUSTOMERS = [
-  { id: "CUST-001", name: "Lakshmi Sarees",    phone: "9876543210", address: "12, Weaver Street, Salem, TN",             materialSource: "Company Supplied", customerType: "Regular Customer" },
-  { id: "CUST-002", name: "Kumar Textiles",    phone: "9443219876", address: "45, Cotton Mills Area, Erode, TN",         materialSource: "Market Supply",     customerType: "Regular Customer" },
-  { id: "CUST-003", name: "Revathi Fabrics",   phone: "8877665544", address: "8, Handloom Complex, Madurai, TN",         materialSource: "Company Supplied", customerType: "New Customer"     },
-  { id: "CUST-004", name: "Royal Looms",       phone: "9001234567", address: "Sec-3, GIDC Industrial Estate, Surat, GJ", materialSource: "Market Supply",     customerType: "Regular Customer" }
+  { id: "CUST-001", name: "Magesh Kumar", companyName: "Lakshmi Sarees",  phone: "9876543210", address: "12, Weaver Street, Salem, TN",             materialSource: "Company Supplied", customerType: "Regular Customer", createdDate: "2026-06-01" },
+  { id: "CUST-002", name: "Suresh Kumar", companyName: "Kumar Textiles",  phone: "9443219876", address: "45, Cotton Mills Area, Erode, TN",         materialSource: "Market Supply",     customerType: "Regular Customer", createdDate: "2026-06-05" },
+  { id: "CUST-003", name: "Ravi Shankar", companyName: "Revathi Fabrics", phone: "8877665544", address: "8, Handloom Complex, Madurai, TN",         materialSource: "Company Supplied", customerType: "New Customer",     createdDate: "2026-06-10" },
+  { id: "CUST-004", name: "Rajesh Patel", companyName: "Royal Looms",     phone: "9001234567", address: "Sec-3, GIDC Industrial Estate, Surat, GJ", materialSource: "Market Supply",     customerType: "Regular Customer", createdDate: "2026-06-12" }
 ];
 
 const INITIAL_ORDERS = [
-  { id: "ORD-101", customerName: "Lakshmi Sarees",  threadType: "Silk",      bobbinCount: 120, bellCount: 8,  sections: 12, borderWidth: 4, deliveryDate: "2026-06-20", transportRequired: true,  status: "In Progress", progress: 60,  dateCreated: "2026-06-16", price: 18000 },
-  { id: "ORD-102", customerName: "Kumar Textiles",  threadType: "Cotton",    bobbinCount: 200, bellCount: 10, sections: 15, borderWidth: 2, deliveryDate: "2026-06-19", transportRequired: false, status: "Started",     progress: 30,  dateCreated: "2026-06-17", price: 25000 },
-  { id: "ORD-103", customerName: "Revathi Fabrics", threadType: "Polyester", bobbinCount: 80,  bellCount: 6,  sections: 8,  borderWidth: 3, deliveryDate: "2026-06-18", transportRequired: true,  status: "Received",    progress: 10,  dateCreated: "2026-06-18", price: 9500  },
-  { id: "ORD-104", customerName: "Royal Looms",     threadType: "Cotton",    bobbinCount: 300, bellCount: 12, sections: 20, borderWidth: 5, deliveryDate: "2026-06-15", transportRequired: true,  status: "In Progress", progress: 60,  dateCreated: "2026-06-10", price: 42000 },
-  { id: "ORD-105", customerName: "Lakshmi Sarees",  threadType: "Silk",      bobbinCount: 150, bellCount: 8,  sections: 10, borderWidth: 4, deliveryDate: "2026-06-25", transportRequired: false, status: "Completed",   progress: 90,  dateCreated: "2026-06-14", price: 21000 },
-  { id: "ORD-106", customerName: "Kumar Textiles",  threadType: "Blend",     bobbinCount: 180, bellCount: 7,  sections: 12, borderWidth: 2, deliveryDate: "2026-06-12", transportRequired: true,  status: "Delivered",   progress: 100, dateCreated: "2026-06-05", price: 23500 }
+  { id: "ORD-101", customerName: "Lakshmi Sarees",  threadType: "Silk",      totalYarns: 8350, bellCount: 8,  sections: 12, borderWidth: 4, deliveryDate: "2026-06-20", transportRequired: true,  status: "In Progress", progress: 60,  dateCreated: "2026-06-16", price: 5010 },
+  { id: "ORD-102", customerName: "Kumar Textiles",  threadType: "Cotton",    totalYarns: 10000, bellCount: 10, sections: 15, borderWidth: 2, deliveryDate: "2026-06-19", transportRequired: false, status: "Started",     progress: 30,  dateCreated: "2026-06-17", price: 6600 },
+  { id: "ORD-103", customerName: "Revathi Fabrics", threadType: "Polyester", totalYarns: 8000,  bellCount: 6,  sections: 8,  borderWidth: 3, deliveryDate: "2026-06-18", transportRequired: true,  status: "Received",    progress: 10,  dateCreated: "2026-06-18", price: 2640 },
+  { id: "ORD-104", customerName: "Royal Looms",     threadType: "Cotton",    totalYarns: 12000, bellCount: 12, sections: 20, borderWidth: 5, deliveryDate: "2026-06-15", transportRequired: true,  status: "In Progress", progress: 60,  dateCreated: "2026-06-10", price: 9504 },
+  { id: "ORD-105", customerName: "Lakshmi Sarees",  threadType: "Silk",      totalYarns: 9000, bellCount: 8,  sections: 10, borderWidth: 4, deliveryDate: "2026-06-25", transportRequired: false, status: "Completed",   progress: 90,  dateCreated: "2026-06-14", price: 5400 },
+  { id: "ORD-106", customerName: "Kumar Textiles",  threadType: "Blend",     totalYarns: 11000, bellCount: 7,  sections: 12, borderWidth: 2, deliveryDate: "2026-06-12", transportRequired: true,  status: "Delivered",   progress: 100, dateCreated: "2026-06-05", price: 4620 }
 ];
 
 const INITIAL_FEEDBACKS = [
@@ -50,33 +50,42 @@ const INITIAL_YARN_RATES = [
   { id: "YR-001", yarnType: "Cotton",    ratePerThousand: 66 },
   { id: "YR-002", yarnType: "Silk",      ratePerThousand: 75 },
   { id: "YR-003", yarnType: "Polyester", ratePerThousand: 55 },
-  { id: "YR-004", yarnType: "Blend",     ratePerThousand: 60 },
-  { id: "YR-005", yarnType: "Wool",      ratePerThousand: 80 },
-  { id: "YR-006", yarnType: "Linen",     ratePerThousand: 70 }
+  { id: "YR-004", yarnType: "Zari",      ratePerThousand: 80 },
+  { id: "YR-005", yarnType: "Blend",     ratePerThousand: 60 },
+  { id: "YR-006", yarnType: "Wool",      ratePerThousand: 85 },
+  { id: "YR-007", yarnType: "Linen",     ratePerThousand: 70 }
 ];
 
 // ─────────────────────────────────────────────
 // Invoice auto-generation helper
 // ─────────────────────────────────────────────
-const generateInvoiceForOrder = (order, yarnRates, existingInvoices) => {
+const generateInvoiceForOrder = (order, yarnRates, existingInvoices, customersList = []) => {
   // Don't duplicate
   if (existingInvoices.some(inv => inv.orderId === order.id)) return null;
 
   const rateObj = yarnRates.find(r => r.yarnType === order.threadType);
   const ratePerThousand = rateObj ? rateObj.ratePerThousand : 0;
+  
+  // Amount Per Bell = (Total Yarns × Rate Per 1000 Yarns) ÷ 1000
   const amountPerBell = ratePerThousand > 0
-    ? (order.bobbinCount * ratePerThousand) / 1000
+    ? ((order.totalYarns || order.bobbinCount || 0) * ratePerThousand) / 1000
     : 0;
-  const totalAmount = amountPerBell * order.bellCount;
+  const totalAmount = amountPerBell * (order.bellCount || 0);
+
+  // Find customer contact and company details
+  const customer = customersList.find(c => c.companyName === order.customerName || c.name === order.customerName);
+  const contactName = customer ? customer.name : order.customerName;
+  const companyName = customer ? customer.companyName : order.customerName;
 
   const invNum = `INV-${Date.now().toString().slice(-5)}`;
   return {
     id: invNum,
     orderId: order.id,
-    customerName: order.customerName,
+    customerName: contactName,
+    companyName: companyName,
     yarnType: order.threadType,
-    yarnCount: order.bobbinCount,
-    bellCount: order.bellCount,
+    totalYarns: order.totalYarns || order.bobbinCount || 0,
+    bellCount: order.bellCount || 0,
     ratePerThousand,
     amountPerBell,
     totalAmount,
@@ -93,72 +102,104 @@ const generateInvoiceForOrder = (order, yarnRates, existingInvoices) => {
 // ─────────────────────────────────────────────
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [customers,  setCustomers]  = useState([]);
-  const [orders,     setOrders]     = useState([]);
-  const [feedbacks,  setFeedbacks]  = useState([]);
-  const [yarnRates,  setYarnRates]  = useState([]);
-  const [invoices,   setInvoices]   = useState([]);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  // ── Load from localStorage ──────────────────
-  useEffect(() => {
-    // Customers
-    const storedCustomers = localStorage.getItem('warpwrap_customers');
-    if (storedCustomers) {
+  
+  const [customers,  setCustomers]  = useState(() => {
+    const stored = localStorage.getItem('warpwrap_customers');
+    if (stored) {
       try {
-        const parsed = JSON.parse(storedCustomers);
+        const parsed = JSON.parse(stored);
         if (parsed.length > 0 && parsed[0].materialSource === undefined) throw new Error("Legacy");
-        setCustomers(parsed);
-      } catch { localStorage.setItem('warpwrap_customers', JSON.stringify(INITIAL_CUSTOMERS)); setCustomers(INITIAL_CUSTOMERS); }
-    } else { localStorage.setItem('warpwrap_customers', JSON.stringify(INITIAL_CUSTOMERS)); setCustomers(INITIAL_CUSTOMERS); }
-
-    // Orders
-    const storedOrders = localStorage.getItem('warpwrap_orders');
-    if (storedOrders) {
-      try {
-        const parsed = JSON.parse(storedOrders);
-        if (parsed.length > 0 && (parsed[0].price === undefined || parsed[0].progress === undefined)) throw new Error("Legacy");
-        setOrders(parsed);
-      } catch { localStorage.setItem('warpwrap_orders', JSON.stringify(INITIAL_ORDERS)); setOrders(INITIAL_ORDERS); }
-    } else { localStorage.setItem('warpwrap_orders', JSON.stringify(INITIAL_ORDERS)); setOrders(INITIAL_ORDERS); }
-
-    // Feedbacks
-    const storedFeedbacks = localStorage.getItem('warpwrap_feedback');
-    if (storedFeedbacks) {
-      try {
-        const parsed = JSON.parse(storedFeedbacks);
-        if (parsed.length > 0 && parsed[0].deliveryExperience === undefined) throw new Error("Legacy");
-        setFeedbacks(parsed);
-      } catch { localStorage.setItem('warpwrap_feedback', JSON.stringify(INITIAL_FEEDBACKS)); setFeedbacks(INITIAL_FEEDBACKS); }
-    } else { localStorage.setItem('warpwrap_feedback', JSON.stringify(INITIAL_FEEDBACKS)); setFeedbacks(INITIAL_FEEDBACKS); }
-
-    // Yarn Rates
-    const storedYarnRates = localStorage.getItem('warpwrap_yarn_rates');
-    if (storedYarnRates) {
-      try { setYarnRates(JSON.parse(storedYarnRates)); }
-      catch { localStorage.setItem('warpwrap_yarn_rates', JSON.stringify(INITIAL_YARN_RATES)); setYarnRates(INITIAL_YARN_RATES); }
-    } else { localStorage.setItem('warpwrap_yarn_rates', JSON.stringify(INITIAL_YARN_RATES)); setYarnRates(INITIAL_YARN_RATES); }
-
-    // Invoices
-    const storedInvoices = localStorage.getItem('warpwrap_invoices');
-    if (storedInvoices) {
-      try { setInvoices(JSON.parse(storedInvoices)); }
-      catch { localStorage.setItem('warpwrap_invoices', JSON.stringify([])); setInvoices([]); }
-    } else {
-      // Auto-generate draft invoices for all existing orders on first load
-      const rates = storedYarnRates ? JSON.parse(storedYarnRates) : INITIAL_YARN_RATES;
-      const ordersToUse = storedOrders ? JSON.parse(storedOrders) : INITIAL_ORDERS;
-      const generatedInvoices = [];
-      ordersToUse.forEach(order => {
-        const inv = generateInvoiceForOrder(order, rates, generatedInvoices);
-        if (inv) generatedInvoices.push(inv);
-      });
-      localStorage.setItem('warpwrap_invoices', JSON.stringify(generatedInvoices));
-      setInvoices(generatedInvoices);
+        return parsed;
+      } catch {
+        localStorage.setItem('warpwrap_customers', JSON.stringify(INITIAL_CUSTOMERS));
+        return INITIAL_CUSTOMERS;
+      }
     }
-  }, []);
+    localStorage.setItem('warpwrap_customers', JSON.stringify(INITIAL_CUSTOMERS));
+    return INITIAL_CUSTOMERS;
+  });
 
-  // ── Persist helpers ─────────────────────────
+  const [orders,     setOrders]     = useState(() => {
+    const stored = localStorage.getItem('warpwrap_orders');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.length > 0 && parsed[0].price === undefined) throw new Error("Legacy");
+        return parsed;
+      } catch {
+        localStorage.setItem('warpwrap_orders', JSON.stringify(INITIAL_ORDERS));
+        return INITIAL_ORDERS;
+      }
+    }
+    localStorage.setItem('warpwrap_orders', JSON.stringify(INITIAL_ORDERS));
+    return INITIAL_ORDERS;
+  });
+
+  const [feedbacks,  setFeedbacks]  = useState(() => {
+    const stored = localStorage.getItem('warpwrap_feedback');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.length > 0 && parsed[0].deliveryExperience === undefined) throw new Error("Legacy");
+        return parsed;
+      } catch {
+        localStorage.setItem('warpwrap_feedback', JSON.stringify(INITIAL_FEEDBACKS));
+        return INITIAL_FEEDBACKS;
+      }
+    }
+    localStorage.setItem('warpwrap_feedback', JSON.stringify(INITIAL_FEEDBACKS));
+    return INITIAL_FEEDBACKS;
+  });
+
+  const [yarnRates,  setYarnRates]  = useState(() => {
+    const stored = localStorage.getItem('warpwrap_yarn_rates');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        localStorage.setItem('warpwrap_yarn_rates', JSON.stringify(INITIAL_YARN_RATES));
+        return INITIAL_YARN_RATES;
+      }
+    }
+    localStorage.setItem('warpwrap_yarn_rates', JSON.stringify(INITIAL_YARN_RATES));
+    return INITIAL_YARN_RATES;
+  });
+
+  const [invoices,   setInvoices]   = useState(() => {
+    const stored = localStorage.getItem('warpwrap_invoices');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        localStorage.setItem('warpwrap_invoices', JSON.stringify([]));
+        return [];
+      }
+    }
+    // Auto-generate draft invoices for all existing orders on first load
+    const storedYarnRates = localStorage.getItem('warpwrap_yarn_rates');
+    const rates = storedYarnRates ? JSON.parse(storedYarnRates) : INITIAL_YARN_RATES;
+    const storedOrders = localStorage.getItem('warpwrap_orders');
+    const ordersToUse = storedOrders ? JSON.parse(storedOrders) : INITIAL_ORDERS;
+    const storedCustomers = localStorage.getItem('warpwrap_customers');
+    const custs = storedCustomers ? JSON.parse(storedCustomers) : INITIAL_CUSTOMERS;
+    const generatedInvoices = [];
+    ordersToUse.forEach(order => {
+      const inv = generateInvoiceForOrder(order, rates, generatedInvoices, custs);
+      if (inv) generatedInvoices.push(inv);
+    });
+    localStorage.setItem('warpwrap_invoices', JSON.stringify(generatedInvoices));
+    return generatedInvoices;
+  });
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // Theme State
+const [theme, setTheme] = useState(() => {
+  return localStorage.getItem("warpwrap_theme") || "light";
+});
+useEffect(() => {
+  document.body.className = theme;
+  localStorage.setItem("warpwrap_theme", theme);
+}, [theme]);
   const saveCustomers = (newCustomers) => {
     setCustomers(newCustomers);
     localStorage.setItem('warpwrap_customers', JSON.stringify(newCustomers));
@@ -172,7 +213,7 @@ function App() {
     let updatedInvoices = [...invoices];
     addedOrders.forEach(order => {
       const currentYarnRates = yarnRates.length > 0 ? yarnRates : INITIAL_YARN_RATES;
-      const inv = generateInvoiceForOrder(order, currentYarnRates, updatedInvoices);
+      const inv = generateInvoiceForOrder(order, currentYarnRates, updatedInvoices, customers);
       if (inv) updatedInvoices.push(inv);
     });
 
@@ -210,7 +251,7 @@ function App() {
     { key: 'invoices',   label: 'Invoices',           icon: <Receipt /> },
     { key: 'feedback',   label: 'Feedback',           icon: <MessageSquare /> },
     { key: 'reports',    label: 'Reports & Analytics',icon: <BarChart2 /> },
-    { key: 'future',     label: 'Future AI Scope',    icon: <Cpu /> },
+    { key: 'future',     label: 'AI Assistant',    icon: <Cpu /> },
   ];
 
   // ── Render content ──────────────────────────
@@ -294,7 +335,7 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    <div className={`app-container ${theme}`}>
       {/* Mobile Hamburger Header */}
       <div style={{
         display: 'none',
@@ -338,7 +379,7 @@ function App() {
           <div className="logo-icon">W</div>
           <div className="logo-text">
             <h2>WarpWrap</h2>
-            <span>Production Intel</span>
+            <span>AI Production Management</span>
           </div>
         </div>
 
@@ -354,10 +395,26 @@ function App() {
             </button>
           ))}
         </div>
-
+<div style={{ padding: "16px" }}>
+  <button
+    onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+    style={{
+      width: "100%",
+      padding: "12px",
+      borderRadius: "10px",
+      border: "none",
+      cursor: "pointer",
+      fontWeight: "600",
+      background: theme === "light" ? "#1e293b" : "#f8fafc",
+      color: theme === "light" ? "#fff" : "#111827"
+    }}
+  >
+    {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+  </button>
+</div>
         <div className="sidebar-footer">
           <p>© 2026 WarpWrap App</p>
-          <p style={{ fontSize: '0.65rem', marginTop: '2px', color: '#475569' }}>BCA Mini Project Prototype</p>
+          <p style={{ fontSize: '0.65rem', marginTop: '2px', color: '#475569' }}>Textile Warping Automation System</p>
         </div>
       </div>
 
@@ -383,5 +440,6 @@ function App() {
     </div>
   );
 }
+
 
 export default App;
