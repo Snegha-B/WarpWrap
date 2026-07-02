@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Plus, Edit2, Trash2, Phone, MapPin, Package, Tag, X, Calendar, History, Eye, User, FileText, IndianRupee } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Phone, MapPin, Package, Tag, X, Calendar, History, Eye, User, FileText, IndianRupee, CreditCard } from 'lucide-react';
 
 function CustomerManager({ customers, saveCustomers, orders }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,6 +15,7 @@ function CustomerManager({ customers, saveCustomers, orders }) {
   const [createdDate, setCreatedDate] = useState('');
   const [materialSource, setMaterialSource] = useState('Market Supply');
   const [customerType, setCustomerType] = useState('New Customer');
+  const [paymentPreference, setPaymentPreference] = useState('UPI');
   const [formError, setFormError] = useState('');
 
   const TODAY_STR = "2026-06-18";
@@ -29,6 +30,7 @@ function CustomerManager({ customers, saveCustomers, orders }) {
     setCreatedDate(TODAY_STR);
     setMaterialSource('Market Supply');
     setCustomerType('New Customer');
+    setPaymentPreference('UPI');
     setFormError('');
     setShowModal(true);
   };
@@ -43,6 +45,7 @@ function CustomerManager({ customers, saveCustomers, orders }) {
     setCreatedDate(customer.createdDate || TODAY_STR);
     setMaterialSource(customer.materialSource || 'Market Supply');
     setCustomerType(customer.customerType || 'New Customer');
+    setPaymentPreference(customer.paymentPreference || 'UPI');
     setFormError('');
     setShowModal(true);
   };
@@ -101,7 +104,8 @@ function CustomerManager({ customers, saveCustomers, orders }) {
             address: address.trim(),
             createdDate,
             materialSource,
-            customerType
+            customerType,
+            paymentPreference
           };
         }
         return c;
@@ -117,7 +121,8 @@ function CustomerManager({ customers, saveCustomers, orders }) {
         address: address.trim(),
         createdDate,
         materialSource,
-        customerType
+        customerType,
+        paymentPreference
       };
       saveCustomers([...customers, newCust]);
     }
@@ -172,6 +177,7 @@ function CustomerManager({ customers, saveCustomers, orders }) {
                   <th>Contact Details</th>
                   <th>Material Source</th>
                   <th>Customer Type</th>
+                  <th>Payment Pref</th>
                   <th>Created Date</th>
                   <th>Orders Count</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
@@ -234,6 +240,19 @@ function CustomerManager({ customers, saveCustomers, orders }) {
                       <td>
                         <span className={`badge ${customer.customerType === 'Regular Customer' ? 'badge-completed' : 'badge-started'}`}>
                           {customer.customerType}
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          fontSize: '0.8rem',
+                          fontWeight: '600',
+                          color: customer.paymentPreference === 'Cash' ? 'var(--warning)' : customer.paymentPreference === 'Defer' ? 'var(--info)' : 'var(--primary)'
+                        }}>
+                          <CreditCard size={14} />
+                          {customer.paymentPreference || 'UPI'}
                         </span>
                       </td>
                       <td>
@@ -398,6 +417,19 @@ function CustomerManager({ customers, saveCustomers, orders }) {
                       <option value="New Customer">New Customer</option>
                     </select>
                   </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Payment Preference</label>
+                    <select
+                      className="form-input"
+                      value={paymentPreference}
+                      onChange={(e) => setPaymentPreference(e.target.value)}
+                    >
+                      <option value="UPI">Online UPI</option>
+                      <option value="Cash">Cash on Collection</option>
+                      <option value="Defer">Need More Time (Defer)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
               <div className="modal-footer">
@@ -453,6 +485,56 @@ function CustomerManager({ customers, saveCustomers, orders }) {
                     <MapPin size={13} className="text-muted" />
                     {selectedHistoryCustomer.address}
                   </div>
+                </div>
+              </div>
+
+              {/* Customer Ledger Summary Card Block */}
+              <h4 style={{ fontSize: '1rem', fontWeight: 600, color: '#0f172a', marginBottom: '12px' }}>Ledger Account Summary</h4>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(5, 1fr)',
+                gap: '10px',
+                background: 'var(--bg-app)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '24px'
+              }}>
+                <div>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Opening Bal</span>
+                  <strong style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-main)', marginTop: '4px' }}>
+                    ₹{Number(selectedHistoryCustomer.openingBalance || 0).toLocaleString()}
+                  </strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Invoice Amt (+)</span>
+                  <strong style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-main)', marginTop: '4px' }}>
+                    ₹{Number(selectedHistoryCustomer.invoiceAmount || 0).toLocaleString()}
+                  </strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Advances (-)</span>
+                  <strong style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-main)', marginTop: '4px' }}>
+                    ₹{Number(selectedHistoryCustomer.advanceAmount || 0).toLocaleString()}
+                  </strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Payments (-)</span>
+                  <strong style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-main)', marginTop: '4px' }}>
+                    ₹{Number(selectedHistoryCustomer.payments || 0).toLocaleString()}
+                  </strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Net Outstanding</span>
+                  <strong style={{ 
+                    display: 'block', 
+                    fontSize: '0.95rem', 
+                    color: Number(selectedHistoryCustomer.outstandingBalance || 0) > 0 ? 'var(--danger)' : 'var(--success)', 
+                    fontWeight: 800,
+                    marginTop: '4px' 
+                  }}>
+                    ₹{Number(selectedHistoryCustomer.outstandingBalance || 0).toLocaleString()}
+                  </strong>
                 </div>
               </div>
 
