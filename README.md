@@ -1,33 +1,77 @@
-<<<<<<< HEAD
-# React + Vite
+🧵 WarpWrap
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> AI-powered Production & Customer Management System for Warping Industries.
 
-Currently, two official plugins are available:
+![React](https://img.shields.io/badge/React-19-blue)
+![Vite](https://img.shields.io/badge/Vite-Latest-purple)
+![Status](https://img.shields.io/badge/Status-Active-success)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## React Compiler
+ 📖 About
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+WarpWrap is a modern web application designed to simplify production management for traditional textile warping businesses.
 
-## Expanding the ESLint configuration
+The project was inspired by real-world challenges faced in a family-owned warping business, where customer orders, production tracking, invoices, and calculations were handled manually.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-=======
-# WarpWise
+WarpWrap digitizes these processes into a clean and efficient dashboard.
 
-Production & Customer Management System for Warping Units
 
-Features:
-- Customer Management
-- Order Management
-- Production Tracking
-- Delivery Monitoring
-- Customer Feedback
+ Features
 
-Future Enhancements:
-- AI Completion Prediction
-- Delay Risk Analysis
->>>>>>> 1e4d8b7f63d1f7bb5dc1102de712b845d2ece508
+- 📊 Dashboard Overview
+- 👥 Customer Management
+- 📦 Order Tracking
+- 💰 Invoice Generation
+- 💳 Accounts & Payments
+- 📈 Production Monitoring
+- 🔍 Search & Filters
+- 🌙 Modern Responsive UI
+
+
+🚀 Upcoming Features
+
+- AI Delivery Prediction
+- Smart Production Analytics
+- WhatsApp Notifications
+- Customer Portal
+- QR Code Invoice
+- Inventory Management
+- Supabase Backend Integration
+
+ 🛠 Tech Stack
+
+- React
+- Vite
+- JavaScript
+- CSS
+- Git
+- GitHub
+
+
+🎯 Project Goal
+
+To help small and medium textile warping businesses manage customers, production, invoices, and payments through a simple and intelligent digital platform.
+
+
+ 📈 Current Status
+
+🚧 Active Development
+
+This project is continuously being improved with new features and UI enhancements.
+
+
+ 🤝 Contributions
+
+Contributions, suggestions, and feedback are welcome.
+
+👩‍💻 Developer
+
+Snegha B
+
+BCA Student | Aspiring Software Engineer 
+
+GitHub:
+https://github.com/Snegha-B
+
+
+⭐ If you like this project, consider giving it a Star!
