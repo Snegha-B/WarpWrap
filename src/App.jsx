@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import logo from "./assets/Logo.png";
 import {
   LayoutDashboard,
   Users,
@@ -723,17 +724,11 @@ function App() {
         {/* Logo */}
         <div className="sidebar-logo">
           <div className="logo-icon">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="1" width="5" height="5" rx="1" fill="white" opacity="0.95" />
-              <rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity="0.75" />
-              <rect x="15" y="1" width="4" height="5" rx="1" fill="white" opacity="0.5" />
-              <rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity="0.6" />
-              <rect x="8" y="8" width="5" height="5" rx="1" fill="white" opacity="0.95" />
-              <rect x="15" y="8" width="4" height="5" rx="1" fill="white" opacity="0.7" />
-              <rect x="1" y="15" width="5" height="4" rx="1" fill="white" opacity="0.4" />
-              <rect x="8" y="15" width="5" height="4" rx="1" fill="white" opacity="0.65" />
-              <rect x="15" y="15" width="4" height="4" rx="1" fill="white" opacity="0.95" />
-            </svg>
+            <img
+              src={logo}
+              alt="WarpWrap Logo"
+              className="logo-image"
+            />
           </div>
           <div className="logo-text">
             <h2>WarpWrap</h2>

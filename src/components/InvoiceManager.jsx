@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileText, Search, Eye, CheckCircle, XCircle, Clock,
   Edit2, Save, X, Download, Filter, StickyNote, Lock,
@@ -346,6 +346,20 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
       .reduce((sum, i) => sum + Number(i.totalAmount), 0),
   };
 
+  // ESC key to close invoice detail modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showCustomerPortal) { setShowCustomerPortal(false); return; }
+        if (showCashModal) { setShowCashModal(false); return; }
+        if (showPDF) { setShowPDF(false); return; }
+        if (selectedInvoice) { setSelectedInvoice(null); setEditingId(null); }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedInvoice, showCashModal, showCustomerPortal, showPDF]);
+
   return (
     <div>
       {showPDF && pdfInvoice && (
@@ -436,8 +450,8 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
         </select>
       </div>
 
-      {/* Main Layout: Table + Side Panel */}
-      <div style={{ display: 'grid', gridTemplateColumns: selectedInvoice ? '1.3fr 1fr' : '1fr', gap: '24px', alignItems: 'start' }}>
+      {/* Main Layout: Full-width Table */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px', alignItems: 'start' }}>
 
         {/* Invoice Table */}
         <div>
@@ -509,7 +523,8 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                             {inv.status}
                           </span>
                         </td>
-                                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} onClick={e => e.stopPropagation()}>
+                                        <td style={{ textAlign: 'right' }}>
+                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} onClick={e => e.stopPropagation()}>
                             <button
                               className="btn btn-secondary btn-sm btn-icon"
                               title="View Invoice"
@@ -536,6 +551,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                               <Printer size={14} />
                             </button>
                           </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -551,19 +567,25 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
           )}
         </div>
 
-        {/* Side Panel: Invoice Detail */}
-        {selectedInvoice && (
-          <div className="card" style={{ position: 'sticky', top: '20px' }}>
+      </div>
+
+      {/* Invoice Detail Modal */}
+      {selectedInvoice && (
+        <div
+          className="modal-overlay"
+          onClick={(e) => { if (e.target === e.currentTarget) { setSelectedInvoice(null); setEditingId(null); } }}
+        >
+          <div className="modal-content" style={{ maxWidth: '680px', maxHeight: '90vh' }}>
             <div
-              className="card-header"
+              className="modal-header"
               style={{
                 background: "var(--bg-card)",
                 borderBottom: "1px solid var(--border-color)"
               }}
-            >  
+            >
               <div className="card-title">
                 <h3 style={{ fontSize: '1rem' }}>
-                  {selectedInvoice.id}
+                  Invoice Details — {selectedInvoice.id}
                   {selectedInvoice.status === 'Approved' && (
                     <Lock size={14} style={{ color: 'var(--success)', marginLeft: '6px' }} />
                   )}
@@ -574,7 +596,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
               </button>
             </div>
 
-            <div className="card-body" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="modal-body" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* Status Badge */}
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <span className={`badge ${getStatusClass(selectedInvoice.status)}`} style={{ fontSize: '0.85rem', padding: '6px 18px' }}>
@@ -899,9 +921,31 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                 </div>
               )}
             </div>
+
+            <div className="modal-footer" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+              <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedInvoice(null); setEditingId(null); }}>
+                <X size={14} /> Close
+              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                  onClick={() => handleGeneratePDF(selectedInvoice)}
+                >
+                  <Printer size={14} /> Print Receipt
+                </button>
+                <button
+                  className="btn btn-primary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                  onClick={() => alert('Download Invoice feature — coming soon!')}
+                >
+                  <Download size={14} /> Download Invoice
+                </button>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Admin: Mark Cash Payment Received Modal Popup (Instruction 6) */}
       {showCashModal && selectedInvoice && (

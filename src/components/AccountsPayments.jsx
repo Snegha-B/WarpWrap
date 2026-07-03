@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { IndianRupee, Plus, Wallet, Clock, Users, ArrowUpRight, FileText, CheckCircle, Search, Calendar, Landmark, Info, MessageSquare } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { IndianRupee, Plus, Wallet, Clock, Users, ArrowUpRight, FileText, CheckCircle, Search, Calendar, Landmark, Info, MessageSquare, Eye, X, Printer, Download } from 'lucide-react';
 
 function AccountsPayments({ customers, invoices, payments, savePayments, advances, saveAdvances, triggerNotification }) {
   const TODAY_STR = "2026-06-18";
@@ -15,6 +15,21 @@ function AccountsPayments({ customers, invoices, payments, savePayments, advance
   const [advanceDate, setAdvanceDate] = useState(TODAY_STR);
   const [advanceRemarks, setAdvanceRemarks] = useState('');
   const [formError, setFormError] = useState('');
+
+  // Payment Details Modal state
+  const [selectedPayment, setSelectedPayment] = useState(null);
+
+  // Close payment modal on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showAdvanceModal) { setShowAdvanceModal(false); return; }
+        if (selectedPayment) { setSelectedPayment(null); }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showAdvanceModal, selectedPayment]);
 
   // ─────────────────────────────────────────────
   // Global Accounts Dashboard Stats
@@ -489,6 +504,7 @@ function AccountsPayments({ customers, invoices, payments, savePayments, advance
                         <th>Client</th>
                         <th>Amount</th>
                         <th>Method</th>
+                        <th style={{ textAlign: 'right' }}>Details</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -502,6 +518,15 @@ function AccountsPayments({ customers, invoices, payments, savePayments, advance
                             <span className="badge badge-inprogress" style={{ fontSize: '0.68rem', padding: '3px 8px' }}>
                               {p.method}
                             </span>
+                          </td>
+                          <td style={{ textAlign: 'right' }}>
+                            <button
+                              className="btn btn-secondary btn-sm btn-icon"
+                              title="View Payment Details"
+                              onClick={(e) => { e.stopPropagation(); setSelectedPayment(p); }}
+                            >
+                              <Eye size={13} />
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -563,6 +588,120 @@ function AccountsPayments({ customers, invoices, payments, savePayments, advance
 
         </div>
       </div>
+
+
+      {/* Payment Details Modal */}
+      {selectedPayment && (
+        <div
+          className="modal-overlay"
+          onClick={(e) => { if (e.target === e.currentTarget) setSelectedPayment(null); }}
+        >
+          <div className="modal-content" style={{ maxWidth: '540px' }}>
+            <div className="modal-header">
+              <div>
+                <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.05rem', fontWeight: 700 }}>
+                  Payment Details
+                </h3>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                  Transaction Reference: {selectedPayment.id || '—'}
+                </span>
+              </div>
+              <button className="modal-close" onClick={() => setSelectedPayment(null)}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {/* Status Banner */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '12px 16px',
+                borderRadius: 'var(--radius-md)',
+                background: 'var(--success-light)',
+                border: '1px solid rgba(5,150,105,0.25)',
+                marginBottom: '20px'
+              }}>
+                <CheckCircle size={18} style={{ color: 'var(--success)', flexShrink: 0 }} />
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--success)' }}>Payment Received</span>
+              </div>
+
+              {/* Detail Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                {[
+                  { label: 'Invoice Number', value: selectedPayment.invoiceId || '—', highlight: true },
+                  { label: 'Transaction ID', value: selectedPayment.id || '—', highlight: false },
+                  { label: 'Customer Name', value: selectedPayment.customerName || '—', highlight: false },
+                  { label: 'Payment Method', value: selectedPayment.method || '—', highlight: false },
+                  { label: 'Payment Amount', value: `₹${Number(selectedPayment.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, highlight: true },
+                  { label: 'Payment Date', value: selectedPayment.date || '—', highlight: false },
+                  { label: 'Payment Status', value: 'Received', highlight: false },
+                  { label: 'Due Date', value: (() => { const inv = invoices.find(i => i.id === selectedPayment.invoiceId); return inv && inv.deliveryDate ? inv.deliveryDate : '—'; })(), highlight: false },
+                ].map(item => (
+                  <div
+                    key={item.label}
+                    style={{
+                      background: item.highlight ? 'var(--primary-light)' : 'var(--bg-app)',
+                      border: `1px solid ${item.highlight ? 'rgba(99,102,241,0.3)' : 'var(--border-color)'}`,
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '12px 14px'
+                    }}
+                  >
+                    <div style={{ fontSize: '0.67rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
+                      {item.label}
+                    </div>
+                    <div style={{ fontWeight: 700, fontSize: '0.875rem', color: item.highlight ? 'var(--primary)' : 'var(--text-main)' }}>
+                      {item.value}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Notes */}
+              {selectedPayment.remarks && (
+                <div style={{
+                  marginTop: '16px',
+                  padding: '12px 14px',
+                  background: 'var(--warning-light)',
+                  border: '1px dashed rgba(217,119,6,0.4)',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.825rem',
+                  color: 'var(--text-sub)'
+                }}>
+                  <strong style={{ display: 'block', marginBottom: '4px', color: 'var(--warning)', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Notes</strong>
+                  {selectedPayment.remarks}
+                </div>
+              )}
+            </div>
+
+            <div className="modal-footer" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+              <button className="btn btn-secondary btn-sm" onClick={() => setSelectedPayment(null)}>
+                <X size={14} /> Close
+              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  title="Print Receipt (placeholder)"
+                  onClick={() => window.print()}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Printer size={14} /> Print Receipt
+                </button>
+                <button
+                  className="btn btn-primary btn-sm"
+                  title="Download Invoice (placeholder)"
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                  onClick={() => alert('Download Invoice feature — coming soon!')}
+                >
+                  <Download size={14} /> Download Invoice
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Receive Advance Modal Popup */}
       {showAdvanceModal && (
