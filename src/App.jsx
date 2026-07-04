@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import logo from "./assets/Logo.png";
+import logo from "./assets/icon.png";
 import {
   LayoutDashboard,
   Users,
@@ -29,6 +29,7 @@ import YarnRateMaster from './components/YarnRateMaster';
 import InvoiceManager from './components/InvoiceManager';
 import AccountsPayments from './components/AccountsPayments';
 import Settings from './components/Settings';
+import LoginPage from './components/LoginPage';
 
 // ─────────────────────────────────────────────
 // Initial Mock Data
@@ -120,6 +121,16 @@ const generateInvoiceForOrder = (order, yarnRates, existingInvoices, customersLi
 // ─────────────────────────────────────────────
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // ── Authentication gate ────────────────────────────────────────────────
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('warpwrap_session') === 'active';
+  });
+
+  const handleLogin = () => {
+    localStorage.setItem('warpwrap_session', 'active');
+    setIsLoggedIn(true);
+  };
 
   const [customers, setCustomers] = useState(() => {
     const stored = localStorage.getItem('warpwrap_customers');
@@ -678,7 +689,7 @@ function App() {
     return found ? found.label : activeTab;
   })();
 
-  return (
+  return isLoggedIn ? (
     <div className={`app-container ${theme}`}>
 
       {/* ── Mobile Header ───────────────────────── */}
@@ -732,7 +743,6 @@ function App() {
           </div>
           <div className="logo-text">
             <h2>WarpWrap</h2>
-            <span>Smart Production. Seamless Weaving.</span>
           </div>
         </div>
 
@@ -766,7 +776,7 @@ function App() {
           </div>
         </div>
 
-        <div className="sidebar-footer">© 2026 WarpWrap · Textile ERP</div>
+        <div className="sidebar-footer">© 2026 WarpWrap · Developed for Babu Textile</div>
       </div>
 
       {/* ── Main Viewport ────────────────────────── */}
@@ -950,6 +960,8 @@ function App() {
         }
       `}</style>
     </div>
+  ) : (
+    <LoginPage onLogin={handleLogin} theme={theme} />
   );
 }
 

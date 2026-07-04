@@ -165,22 +165,36 @@ function CustomerManager({ customers, saveCustomers, orders }) {
         </div>
       </div>
 
-      {/* Customer Table/Cards */}
+      {/* Customer Table */}
       {filteredCustomers.length > 0 ? (
-        <div className="card">
-          <div className="table-container">
-            <table className="table">
+        <div className="card" style={{ overflow: 'hidden' }}>
+          <div className="table-container" style={{ overflowX: 'auto' }}>
+            <table
+              className="table"
+              style={{
+                width: '100%',
+                minWidth: '1100px',
+                tableLayout: 'fixed',
+              }}
+            >
+              <colgroup>
+                <col style={{ width: '10%' }} />  {/* Customer ID */}
+                <col style={{ width: '20%' }} />  {/* Customer & Company */}
+                <col style={{ width: '22%' }} />  {/* Contact Details */}
+                <col style={{ width: '12%' }} />  {/* Payment Preference */}
+                <col style={{ width: '12%' }} />  {/* Created Date */}
+                <col style={{ width: '10%' }} />  {/* Orders */}
+                <col style={{ width: '14%' }} />  {/* Actions */}
+              </colgroup>
               <thead>
                 <tr>
-                  <th>Customer ID</th>
-                  <th>Customer &amp; Company</th>
-                  <th>Contact Details</th>
-                  <th>Material Source</th>
-                  <th>Customer Type</th>
-                  <th>Payment Pref</th>
-                  <th>Created Date</th>
-                  <th>Orders Count</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', verticalAlign: 'middle' }}>Customer ID</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', verticalAlign: 'middle' }}>Customer &amp; Company</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', verticalAlign: 'middle' }}>Contact Details</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', verticalAlign: 'middle' }}>Payment Pref</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>Created Date</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'center', verticalAlign: 'middle' }}>Orders</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'center', verticalAlign: 'middle' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -191,95 +205,96 @@ function CustomerManager({ customers, saveCustomers, orders }) {
                   ).length;
 
                   return (
-                    <tr key={customer.id}>
-                      <td style={{ fontWeight: '600', color: 'var(--primary)' }}>
+                    <tr key={customer.id} style={{ height: '72px' }}>
+                      {/* Customer ID */}
+                      <td style={{ padding: '14px 16px', textAlign: 'left', verticalAlign: 'middle', fontWeight: '600', color: 'var(--primary)', whiteSpace: 'nowrap' }}>
                         {customer.id}
                       </td>
-                      <td>
+                      {/* Customer & Company */}
+                      <td style={{ padding: '14px 16px', textAlign: 'left', verticalAlign: 'middle' }}>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           <strong
                             style={{
-                              color: "var(--text-main)"
+                              color: 'var(--text-main)',
+                              display: 'block',
+                              wordBreak: 'break-word',
+                              lineHeight: '1.2',
+                              marginBottom: '2px'
                             }}
                           >
                             {customer.name}
                           </strong>
                           <div
                             style={{
-                              color: "var(--text-main)"
+                              color: 'var(--text-muted)',
+                              fontSize: '0.78rem',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis'
                             }}
                           >
-                            {customer.company}
+                            {customer.companyName || customer.company}
                           </div>
                         </div>
                       </td>
-                      <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}>
-                            <Phone size={13} className="text-muted" style={{ color: 'var(--text-muted)' }} />
+                      {/* Contact Details */}
+                      <td style={{ padding: '14px 16px', textAlign: 'left', verticalAlign: 'middle' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+                            <Phone size={12} style={{ flexShrink: 0, color: 'var(--text-muted)' }} />
                             {customer.phone}
                           </span>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.775rem', color: 'var(--text-muted)' }}>
-                            <MapPin size={13} />
-                            {customer.address}
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                            <MapPin size={12} style={{ flexShrink: 0 }} />
+                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {customer.address}
+                            </span>
                           </span>
                         </div>
                       </td>
-                      <td>
+                      {/* Payment Pref */}
+                      <td style={{ padding: '14px 16px', textAlign: 'left', verticalAlign: 'middle' }}>
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '4px',
-                          fontSize: '0.8rem',
-                          fontWeight: '500'
-                        }}>
-                          <Package size={14} style={{ color: 'var(--primary)' }} />
-                          {customer.materialSource}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`badge ${customer.customerType === 'Regular Customer' ? 'badge-completed' : 'badge-started'}`}>
-                          {customer.customerType}
-                        </span>
-                      </td>
-                      <td>
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
+                          gap: '6px',
                           fontSize: '0.8rem',
                           fontWeight: '600',
+                          whiteSpace: 'nowrap',
                           color: customer.paymentPreference === 'Cash' ? 'var(--warning)' : customer.paymentPreference === 'Defer' ? 'var(--info)' : 'var(--primary)'
                         }}>
-                          <CreditCard size={14} />
+                          <CreditCard size={13} style={{ flexShrink: 0 }} />
                           {customer.paymentPreference || 'UPI'}
                         </span>
                       </td>
-                      <td>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem' }}>
-                          <Calendar size={13} className="text-muted" />
+                      {/* Created Date */}
+                      <td style={{ padding: '14px 16px', textAlign: 'left', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem' }}>
+                          <Calendar size={12} style={{ flexShrink: 0, color: 'var(--text-muted)' }} />
                           {customer.createdDate || '—'}
                         </span>
                       </td>
-                      <td style={{ fontWeight: '600', paddingLeft: '24px' }}>
+                      {/* Orders Count */}
+                      <td style={{ padding: '14px 16px', textAlign: 'center', verticalAlign: 'middle', fontWeight: '600', whiteSpace: 'nowrap' }}>
                         {custOrdersCount}
                       </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      {/* Actions */}
+                      <td style={{ padding: '14px 16px', textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
                           <button
                             className="btn btn-secondary btn-sm btn-icon"
                             title="Customer History"
                             style={{ color: 'var(--primary)', borderColor: 'rgba(79, 70, 229, 0.2)' }}
                             onClick={() => setSelectedHistoryCustomer(customer)}
                           >
-                            <History size={14} />
+                            <History size={13} />
                           </button>
                           <button
                             className="btn btn-secondary btn-sm btn-icon"
                             title="Edit Client"
                             onClick={() => handleEditClick(customer)}
                           >
-                            <Edit2 size={14} />
+                            <Edit2 size={13} />
                           </button>
                           <button
                             className="btn btn-secondary btn-sm btn-icon"
@@ -287,7 +302,7 @@ function CustomerManager({ customers, saveCustomers, orders }) {
                             style={{ color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
                             onClick={() => handleDeleteClick(customer.id, customer.name, customer.companyName)}
                           >
-                            <Trash2 size={14} />
+                            <Trash2 size={13} />
                           </button>
                         </div>
                       </td>

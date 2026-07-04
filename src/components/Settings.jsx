@@ -14,11 +14,10 @@ function Settings({ theme, setTheme }) {
   const [company, setCompany] = useState(() => {
     const stored = localStorage.getItem('warpwrap_settings_company');
     return stored ? JSON.parse(stored) : {
-      name: 'WarpWrap Textile Industries',
-      owner: 'Magesh Kumar',
-      address: '12, Weaver Street, Salem, TN, India',
-      phone: '9876543210',
-      gst: '33AABCC1234D1Z5',
+      name: 'Babu Textile Industries',
+      owner: 'Babu',
+      address: 'Narasimhaswamy Layout, Laggere, Banglore 560058',
+      phone: '7019655290',
       logo: ''
     };
   });
@@ -37,7 +36,7 @@ function Settings({ theme, setTheme }) {
     return stored ? JSON.parse(stored) : {
       prefix: 'INV-',
       terms: '1. Payment is due within 15 days of invoice date.\n2. Interest will be charged at 12% per annum on overdue amounts.\n3. Goods once sold will not be taken back.',
-      notes: 'Thank you for choosing WarpWrap Textile Industries for your warping needs.'
+      notes: 'Thank you for choosing Babu Textile Industries for your warping needs.'
     };
   });
 

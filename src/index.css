@@ -50,9 +50,9 @@
   /* Surfaces */
   --bg-app: #f1f5f9;
   --bg-card: #ffffff;
-  --bg-sidebar: #0d1117;
-  --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
-  --bg-sidebar-active: rgba(99, 102, 241, 0.20);
+  --bg-sidebar: #EDE9FE;
+  --bg-sidebar-hover: #DDD6FE;
+  --bg-sidebar-active: linear-gradient(135deg, #7C3AED, #4F46E5);
   --bg-input: #ffffff;
   --bg-header: #ffffff;
 
@@ -61,8 +61,8 @@
   --text-sub: #334155;
   --text-muted: #64748b;
   --text-inverse: #ffffff;
-  --text-sidebar: #94a3b8;
-  --text-sidebar-active: #c7d2fe;
+  --text-sidebar: #1E293B;
+  --text-sidebar-active: #ffffff;
 
   /* Borders */
   --border-color: #e2e8f0;
@@ -223,7 +223,7 @@ body {
   bottom: 0;
   left: 0;
   z-index: 50;
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: 1px solid var(--border-color);
   transition: transform var(--transition-normal), width var(--transition-normal);
   overflow: hidden;
 }
@@ -234,13 +234,14 @@ body {
   display: flex;
   align-items: center;
   gap: 11px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(167, 139, 250, 0.3);
   flex-shrink: 0;
+  background: #DDD6FE;
 }
 
 .logo-icon {
-  width: 52px;
-  height: 52px;
+  width: 70px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -251,8 +252,6 @@ body {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  position: relative;
-  z-index: 1;
 }
 
 .logo-text h2 {
@@ -260,7 +259,7 @@ body {
   font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: #4338CA;
   line-height: 1.2;
 }
 
@@ -290,7 +289,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #2a3a52;
+  color: #4338CA;
   padding: 10px 10px 4px;
   margin-top: 4px;
 }
@@ -315,25 +314,26 @@ body {
 }
 
 .nav-item:hover {
-  background-color: var(--bg-sidebar-hover);
-  color: #c7d2fe;
+  background-color: #DDD6FE;
+  color: #4F46E5;
 }
 
 .nav-item:hover svg {
   transform: translateX(2px);
-  color: var(--primary);
+  color: #4F46E5;
 }
 
 .nav-item.active {
-  background: var(--bg-sidebar-active);
-  color: var(--text-sidebar-active);
+  background: linear-gradient(135deg, #7C3AED, #4F46E5);
+  color: #ffffff;
   font-weight: 600;
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: none;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
 }
 
 .nav-item.active svg {
-  color: #818cf8;
-  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.5));
+  color: #ffffff;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));
 }
 
 .nav-item.active::before {
@@ -357,7 +357,7 @@ body {
 /* Sidebar Bottom User Block */
 .sidebar-user {
   padding: 12px 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 
@@ -367,8 +367,8 @@ body {
   gap: 10px;
   padding: 9px 10px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(167, 139, 250, 0.3);
 }
 
 .sidebar-avatar {
@@ -393,7 +393,7 @@ body {
 .sidebar-user-name {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #c7d2fe;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -401,7 +401,7 @@ body {
 
 .sidebar-user-role {
   font-size: 0.65rem;
-  color: #2a3a52;
+  color: #4338CA;
   font-weight: 500;
 }
 
@@ -438,9 +438,9 @@ body {
 .sidebar-footer {
   padding: 8px 14px 12px;
   font-size: 0.65rem;
-  color: #1e2d42;
+  color: #4338CA;
   text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(167, 139, 250, 0.3);
 }
 
 /* =============================================================
@@ -831,10 +831,12 @@ body {
   overflow-x: auto;
   width: 100%;
   border-radius: var(--radius-md);
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   width: 100%;
+  min-width: 900px;
   border-collapse: collapse;
   text-align: left;
   font-size: 0.86rem;
@@ -883,6 +885,85 @@ body.dark .table tbody tr:hover {
 
 body.dark .table th {
   background: rgba(255, 255, 255, 0.02);
+}
+
+/* =============================================================
+   DARK MODE — SIDEBAR OVERRIDES
+   Restore original dark sidebar now that base styles use the
+   light lavender palette.
+   ============================================================= */
+body.dark .sidebar {
+  background-color: var(--bg-sidebar);
+  border-right-color: var(--border-color);
+}
+
+body.dark .sidebar-logo {
+  background: transparent;
+  border-bottom-color: var(--border-color);
+}
+
+body.dark .logo-text h2 {
+  color: var(--text-main);
+}
+
+body.dark .nav-group-label {
+  color: var(--text-muted);
+}
+
+body.dark .nav-item {
+  color: var(--text-sidebar);
+}
+
+body.dark .nav-item:hover {
+  background-color: var(--bg-sidebar-hover);
+  color: var(--primary);
+}
+
+body.dark .nav-item:hover svg {
+  color: var(--primary);
+}
+
+body.dark .nav-item.active {
+  background: var(--bg-sidebar-active);
+  color: var(--text-sidebar-active);
+  box-shadow: none;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+body.dark .nav-item.active svg {
+  color: var(--text-sidebar-active);
+  filter: drop-shadow(0 0 4px var(--primary-glow));
+}
+
+body.dark .sidebar-user-card {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+body.dark .sidebar-user-role {
+  color: var(--text-muted);
+}
+
+body.dark .sidebar-footer {
+  color: var(--text-muted);
+  border-top-color: var(--border-color);
+}
+
+/* =============================================================
+   DATE INPUT — Calendar Icon (Dark Mode)
+   ============================================================= */
+body.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.85);
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+body.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+body.dark input[type="date"] {
+  color-scheme: dark;
 }
 
 /* =============================================================
@@ -1966,35 +2047,39 @@ body.dark .prediction-box {
    ============================================================= */
 @media print {
 
-  body>#root>.app-container>.sidebar,
-  body>#root>.app-container>.main-viewport>*:not(.invoice-print-wrapper),
-  .mobile-header,
-  .invoice-print-actions {
-    display: none !important;
+  body {
+    background: white !important;
   }
 
   .invoice-print-wrapper {
     position: static !important;
-    background: none !important;
-    backdrop-filter: none !important;
-    padding: 0 !important;
-  }
-
-  .invoice-print-wrapper>div {
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
-  }
-
-  body {
-    background-color: #fff;
-  }
-
-  table {
-    page-break-inside: avoid;
+    display: block !important;
+    background: white !important;
   }
 }
+
+.invoice-print-wrapper {
+  position: static !important;
+  background: none !important;
+  backdrop-filter: none !important;
+  padding: 0 !important;
+}
+
+.invoice-print-wrapper>div {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+body {
+  background-color: #fff;
+}
+
+table {
+  page-break-inside: avoid;
+}
+
 
 /* =============================================================
    INVOICE SPLIT GRID RESPONSIVE
@@ -2067,7 +2152,7 @@ body.dark .prediction-box {
 }
 
 .logo-image {
-  width: 48px;
-  height: 48px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
 }

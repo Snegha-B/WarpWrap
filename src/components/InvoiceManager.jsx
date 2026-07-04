@@ -119,29 +119,29 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
       alert('Total Amount must be a positive number.');
       return;
     }
-    
+
     const newAmtPerBell = newTotal / inv.bellCount;
     const updated = invoices.map(i =>
       i.id === inv.id
-        ? { 
-            ...i, 
-            ratePerThousand: newRate, 
-            totalAmount: newTotal, 
-            amountPerBell: newAmtPerBell, 
-            notes: editNotes 
-          }
+        ? {
+          ...i,
+          ratePerThousand: newRate,
+          totalAmount: newTotal,
+          amountPerBell: newAmtPerBell,
+          notes: editNotes
+        }
         : i
     );
     saveInvoices(updated);
     setSelectedInvoice(prev =>
       prev && prev.id === inv.id
-        ? { 
-            ...prev, 
-            ratePerThousand: newRate, 
-            totalAmount: newTotal, 
-            amountPerBell: newAmtPerBell, 
-            notes: editNotes 
-          }
+        ? {
+          ...prev,
+          ratePerThousand: newRate,
+          totalAmount: newTotal,
+          amountPerBell: newAmtPerBell,
+          notes: editNotes
+        }
         : prev
     );
     setEditingId(null);
@@ -170,7 +170,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
     });
 
     saveInvoices(updated);
-    
+
     // Sync current selected state
     const currentUpdated = updated.find(i => i.id === inv.id);
     setSelectedInvoice(currentUpdated);
@@ -180,11 +180,11 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
     setDeferRemarks('');
     setDeferOption('Tomorrow');
     setDeferDate('2026-06-19');
-    
+
     // Default the active tab selection based on the invoice's saved paymentPreference
     const prefTab = inv.paymentPreference === 'Cash' ? 'cash' : (inv.paymentPreference === 'Defer' ? 'defer' : 'upi');
     setPortalActiveTab(prefTab);
-    
+
     setShowCustomerPortal(true);
   };
 
@@ -193,7 +193,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
     setUpiStatus('Processing');
     setTimeout(() => {
       setUpiStatus('Successful');
-      
+
       const updated = invoices.map(i => {
         if (i.id === inv.id) {
           return {
@@ -283,7 +283,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
   // Admin Mark cash payment received (Instruction 6)
   const handleMarkPaid = (inv) => {
     const amt = parseFloat(cashAmount) || Number(inv.totalAmount);
-    
+
     const updated = invoices.map(i => {
       if (i.id === inv.id) {
         return {
@@ -477,8 +477,8 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                         style={{
                           cursor: 'pointer',
                           background: selectedInvoice && selectedInvoice.id === inv.id
-  ? 'rgba(99,102,241,.12)'
-  : 'transparent'
+                            ? 'rgba(99,102,241,.12)'
+                            : 'transparent'
                         }}
                         onClick={() => setSelectedInvoice(inv)}
                       >
@@ -486,29 +486,29 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                         <td style={{ fontWeight: 500 }}>{inv.orderId}</td>
                         <td>
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
-                           <span
-  style={{
-    fontWeight: 600,
-    color: 'var(--text-main)'
-  }}
->
-  {inv.customerName}
-</span>
+                            <span
+                              style={{
+                                fontWeight: 600,
+                                color: 'var(--text-main)'
+                              }}
+                            >
+                              {inv.customerName}
+                            </span>
                             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{inv.companyName || '—'}</span>
                           </div>
                         </td>
                         <td>
                           <span
-  style={{
-    background: 'rgba(99,102,241,.15)',
-    color: 'var(--primary)',
-    border: '1px solid rgba(99,102,241,.35)',
-    padding: '3px 10px',
-    borderRadius: '999px',
-    fontSize: '0.78rem',
-    fontWeight: 600
-  }}
->
+                            style={{
+                              background: 'rgba(99,102,241,.15)',
+                              color: 'var(--primary)',
+                              border: '1px solid rgba(99,102,241,.35)',
+                              padding: '3px 10px',
+                              borderRadius: '999px',
+                              fontSize: '0.78rem',
+                              fontWeight: 600
+                            }}
+                          >
                             {inv.yarnType}
                           </span>
                         </td>
@@ -523,8 +523,8 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                             {inv.status}
                           </span>
                         </td>
-                                        <td style={{ textAlign: 'right' }}>
-                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} onClick={e => e.stopPropagation()}>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} onClick={e => e.stopPropagation()}>
                             <button
                               className="btn btn-secondary btn-sm btn-icon"
                               title="View Invoice"
@@ -620,7 +620,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                   { label: 'Order Date', value: selectedInvoice.orderDate },
                   { label: 'Delivery Date', value: selectedInvoice.deliveryDate || '—' },
                 ].map(item => (
-                  <div key={item.label} style={{background: 'var(--bg-app)', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                  <div key={item.label} style={{ background: 'var(--bg-app)', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
                     <div
                       style={{
                         fontSize: '0.68rem',
@@ -646,7 +646,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
 
               {/* Billing Breakdown */}
               {editingId === selectedInvoice.id ? (
-                <div style={{ background: 'var(--bg-card)', border:  '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
+                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
                   <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Edit2 size={13} /> Reviewing Invoice Draft
                   </div>
@@ -654,11 +654,11 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                     <label
                       className="form-label"
                       style={{
-                        color:  "var(--text-main)",
+                        color: "var(--text-main)",
                         fontWeight: 600
                       }}
                     >Rate Per 1000 Yarns (₹)</label>
-                   <input
+                    <input
                       type="number"
                       step="0.01"
                       className="form-input"
@@ -675,18 +675,18 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                     <label
                       className="form-label"
                       style={{
-                        color:  "var(--text-main)",
+                        color: "var(--text-main)",
                         fontWeight: 600
                       }}
                     >Total Amount Override (₹)</label>
-                   <input
+                    <input
                       type="number"
                       step="0.01"
                       className="form-input"
                       style={{
-                      background: "var(--bg-app)",
-                      color: "var(--text-main)",
-                      border: "1px solid var(--border-color)"
+                        background: "var(--bg-app)",
+                        color: "var(--text-main)",
+                        border: "1px solid var(--border-color)"
                       }}
                       value={editTotalAmount}
                       onChange={e => handleAmountChange(e.target.value, selectedInvoice)}
@@ -696,13 +696,13 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                     <label
                       className="form-label"
                       style={{
-                        color:  "var(--text-main)",
+                        color: "var(--text-main)",
                         fontWeight: 600
                       }}
                     >Invoice Notes</label>
                     <textarea
                       className="form-input"
-                     style={{color: "var(--text-main)",background: "var(--bg-app)",border: "1px solid var(--border-color)",minHeight: '70px', resize: 'vertical' }}
+                      style={{ color: "var(--text-main)", background: "var(--bg-app)", border: "1px solid var(--border-color)", minHeight: '70px', resize: 'vertical' }}
                       value={editNotes}
                       onChange={e => setEditNotes(e.target.value)}
                       placeholder="Add specific notes, payment instructions, etc."
@@ -730,10 +730,11 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                       { label: 'Bell Count', value: selectedInvoice.bellCount, highlight: false },
                       { label: 'Total Amount', value: `₹${Number(selectedInvoice.totalAmount).toFixed(2)}`, highlight: true },
                     ].map(row => (
-                      <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem', padding: row.highlight ? '8px 0 0' : '0' , borderTop: row.highlight ? '1px solid var(--border-color)' : 'none', marginTop: row.highlight ? '4px' : '0' }}>
+                      <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem', padding: row.highlight ? '8px 0 0' : '0', borderTop: row.highlight ? '1px solid var(--border-color)' : 'none', marginTop: row.highlight ? '4px' : '0' }}>
                         <span style={{ color: 'var(--text-muted)' }}>{row.label}</span>
                         <strong style={{
-                          color: row.highlight ? 'var(--primary)' : 'var(--text-main)',  fontSize: row.highlight ? '1rem' : '0.84rem' }}>
+                          color: row.highlight ? 'var(--primary)' : 'var(--text-main)', fontSize: row.highlight ? '1rem' : '0.84rem'
+                        }}>
                           {row.value}
                         </strong>
                       </div>
@@ -766,11 +767,10 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                   {/* Payment Status Badge */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.825rem' }}>
                     <span style={{ color: 'var(--text-muted)' }}>Payment Status:</span>
-                    <span className={`badge ${
-                      selectedInvoice.paymentStatus === 'Paid' ? 'invoice-status-approved' :
-                      selectedInvoice.paymentStatus === 'Awaiting Cash Payment' ? 'invoice-status-draft' :
-                      selectedInvoice.paymentStatus === 'Payment Deferred' ? 'invoice-status-final' : 'invoice-status-rejected'
-                    }`} style={{ fontSize: '0.725rem', padding: '4px 10px' }}>
+                    <span className={`badge ${selectedInvoice.paymentStatus === 'Paid' ? 'invoice-status-approved' :
+                        selectedInvoice.paymentStatus === 'Awaiting Cash Payment' ? 'invoice-status-draft' :
+                          selectedInvoice.paymentStatus === 'Payment Deferred' ? 'invoice-status-final' : 'invoice-status-rejected'
+                      }`} style={{ fontSize: '0.725rem', padding: '4px 10px' }}>
                       {selectedInvoice.paymentStatus || 'Pending'}
                     </span>
                   </div>
@@ -882,13 +882,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                   )}
 
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                      onClick={() => openCustomerPortal(selectedInvoice)}
-                    >
-                      View as Customer
-                    </button>
+
                     <button
                       className="btn btn-primary btn-sm"
                       style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
@@ -1002,14 +996,13 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
           <div className="modal-content" style={{ maxWidth: '90%', width: '920px', height: '90vh', display: 'flex', flexDirection: 'column' }}>
             <div className="modal-header" style={{ flexShrink: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span className="badge badge-inprogress" style={{ fontSize: '0.65rem', padding: '3px 8px' }}>Client View</span>
-                <h3>Client Invoice &amp; Payment Portal</h3>
+                <h3>Invoice Preview</h3>
               </div>
               <button className="modal-close" onClick={() => setShowCustomerPortal(false)}>✕</button>
             </div>
-            
+
             <div className="modal-body" style={{ flex: 1, padding: 0, display: 'grid', gridTemplateColumns: '1.2fr 1fr', overflow: 'hidden' }}>
-              
+
               {/* Left Side: Invoice Document Pre-visual */}
               <div style={{ padding: '24px', overflowY: 'auto', borderRight: '1px solid var(--border-color)', height: '100%' }}>
                 <div style={{
@@ -1023,7 +1016,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                   {/* Header info */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                     <div>
-                      <h4 style={{ fontWeight: 800, color: 'var(--primary)', margin: 0 }}>WarpWrap Textile</h4>
+                      <h4 style={{ fontWeight: 800, color: 'var(--primary)', margin: 0 }}>Babu Textile</h4>
                       <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Salem &amp; Banglore Warping Units</span>
                     </div>
                     <div style={{ textAlign: 'right' }}>
@@ -1070,7 +1063,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
 
               {/* Right Side: Payment Preferences Portal */}
               <div style={{ padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
-                
+
                 {/* Current Status overview */}
                 <div style={{
                   background: 'var(--bg-app)',
@@ -1110,7 +1103,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', flex: 1 }}>
                     <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>Select Payment Preference</h4>
-                    
+
                     {/* Preference Tabs */}
                     <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', gap: '8px' }}>
                       {[
@@ -1150,7 +1143,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
 
                           <div style={{ background: 'var(--bg-app)', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '8px' }}>
-                              Merchant: <strong>WarpWrap Textile</strong>
+                              Merchant: <strong>Babu Textile</strong>
                             </div>
 
                             {/* Beautiful High-Fidelity SVG UPI QR Code representation (Instruction 6) */}
@@ -1241,7 +1234,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                           <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                             Choose to pay cash directly to the operator when you collect your warp beam.
                           </span>
-                          
+
                           <div style={{
                             background: 'rgba(245,158,11,0.06)',
                             padding: '14px',
@@ -1251,7 +1244,7 @@ function InvoiceManager({ invoices, saveInvoices, yarnRates, customers = [], pay
                             color: 'var(--text-main)',
                             lineHeight: 1.5
                           }}>
-                            <strong>Awaiting Cash Payment:</strong> Selecting this will shift the invoice status to Awaiting Cash Payment. 
+                            <strong>Awaiting Cash Payment:</strong> Selecting this will shift the invoice status to Awaiting Cash Payment.
                             The admin will mark it as Paid once cash is received during collection.
                           </div>
 
